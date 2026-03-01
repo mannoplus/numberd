@@ -1,10 +1,17 @@
 <script setup lang="ts">
+import { ref, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import { useI18n } from 'vue-i18n'
-import { LayoutDashboard, BarChart3, Binary, List, Dices } from 'lucide-vue-next'
+import { LayoutDashboard, BarChart3, Binary, List, Dices, Menu, X } from 'lucide-vue-next'
 
 const route = useRoute()
 const { t, locale } = useI18n()
+
+const isMobileMenuOpen = ref(false)
+
+watch(() => route.path, () => {
+  isMobileMenuOpen.value = false
+})
 
 const navigation = [
   { nameKey: 'nav.dashboard', href: '/', icon: LayoutDashboard },
@@ -21,10 +28,47 @@ const setLanguage = (lang: string) => {
 </script>
 
 <template>
-  <div class="min-h-screen bg-[#0f0f14] flex flex-col md:flex-row font-sans text-gray-100">
-    <div class="fixed inset-y-0 z-50 flex w-72 flex-col">
+  <div class="min-h-screen bg-[#0f0f14] flex flex-col font-sans text-gray-100 relative">
+    
+    <!-- Mobile Sticky Header -->
+    <div class="lg:hidden sticky top-0 z-40 flex h-16 shrink-0 items-center justify-between border-b border-gray-800 bg-[#12121a]/90 backdrop-blur-md px-4 shadow-sm">
+      <div class="flex items-center gap-3">
+        <div class="h-8 w-8 rounded-lg bg-gradient-to-br from-violet-600 to-fuchsia-500 flex items-center justify-center shadow-[0_0_15px_rgba(124,58,237,0.5)]">
+          <span class="text-white font-bold text-lg leading-none">N</span>
+        </div>
+        <span class="text-xl font-black bg-clip-text text-transparent bg-gradient-to-r from-white to-gray-400">
+          NumberD
+        </span>
+      </div>
+      <button 
+        type="button" 
+        class="flex items-center justify-center w-11 h-11 text-gray-400 hover:text-white rounded-md focus:outline-none focus:ring-2 focus:ring-inset focus:ring-violet-500" 
+        @click="isMobileMenuOpen = true"
+        aria-label="Open sidebar"
+      >
+        <Menu class="h-6 w-6" aria-hidden="true" />
+      </button>
+    </div>
+
+    <!-- Mobile sidebar overlay -->
+    <transition
+      enter-active-class="transition-opacity ease-linear duration-300"
+      enter-from-class="opacity-0"
+      enter-to-class="opacity-100"
+      leave-active-class="transition-opacity ease-linear duration-300"
+      leave-from-class="opacity-100"
+      leave-to-class="opacity-0"
+    >
+      <div v-show="isMobileMenuOpen" class="fixed inset-0 z-40 bg-black/80 backdrop-blur-sm lg:hidden" @click="isMobileMenuOpen = false"></div>
+    </transition>
+
+    <!-- Sidebar Wrapper -->
+    <div :class="[
+      'fixed inset-y-0 left-0 z-50 flex w-72 flex-col transition-transform duration-300 ease-in-out lg:translate-x-0',
+      isMobileMenuOpen ? 'translate-x-0 shadow-2xl' : '-translate-x-full'
+    ]">
       <div class="flex grow flex-col gap-y-5 overflow-y-auto border-r border-gray-800 bg-[#12121a] px-6 pb-4">
-        <div class="flex h-16 shrink-0 items-center mt-4">
+        <div class="flex h-16 shrink-0 items-center justify-between mt-4">
           <div class="flex items-center gap-3">
             <div class="h-8 w-8 rounded-lg bg-gradient-to-br from-violet-600 to-fuchsia-500 flex items-center justify-center shadow-[0_0_15px_rgba(124,58,237,0.5)]">
               <span class="text-white font-bold text-lg leading-none">N</span>
@@ -33,6 +77,14 @@ const setLanguage = (lang: string) => {
               NumberD
             </span>
           </div>
+          <button 
+            type="button" 
+            class="lg:hidden flex items-center justify-center w-11 h-11 text-gray-400 hover:text-white rounded-md" 
+            @click="isMobileMenuOpen = false"
+            aria-label="Close sidebar"
+          >
+            <X class="h-6 w-6" aria-hidden="true" />
+          </button>
         </div>
         <nav class="flex flex-1 flex-col mt-6">
           <ul role="list" class="flex flex-1 flex-col gap-y-7">
@@ -89,7 +141,8 @@ const setLanguage = (lang: string) => {
       </div>
     </div>
 
-    <div class="pl-72 flex flex-col min-h-screen w-full">
+    <!-- Main content Wrapper -->
+    <div class="lg:pl-72 flex flex-col min-h-screen w-full transition-all duration-300">
       <main class="flex-grow">
         <router-view v-slot="{ Component }">
           <transition 
