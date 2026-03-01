@@ -36,16 +36,29 @@ watch(selectedGame, () => {
 
 onMounted(() => {
   fetchHistory()
-  pollTimer = setInterval(() => {
-    // Only refresh silently in the background
-    const prevIsLoading = isLoading.value
-    isLoading.value = false
-    fetchHistory().finally(() => { isLoading.value = prevIsLoading })
-  }, 60000)
+  const scheduleRefresh = () => {
+    const nowLocal = new Date()
+    const target = new Date(nowLocal)
+    target.setHours(21, 0, 0, 0)
+    if (nowLocal.getTime() >= target.getTime()) {
+      target.setDate(target.getDate() + 1)
+    }
+    const delay = target.getTime() - nowLocal.getTime()
+    pollTimer = window.setTimeout(() => {
+      // Only refresh silently in the background
+      const prevIsLoading = isLoading.value
+      isLoading.value = false
+      fetchHistory().finally(() => { 
+        isLoading.value = prevIsLoading
+        scheduleRefresh()
+      })
+    }, delay)
+  }
+  scheduleRefresh()
 })
 
 onUnmounted(() => {
-  if (pollTimer) clearInterval(pollTimer)
+  if (pollTimer) clearTimeout(pollTimer)
 })
 </script>
 

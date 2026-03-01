@@ -57,13 +57,27 @@ onMounted(() => {
     now.value = new Date()
   }, 1000)
 
-  // Auto-refresh data every 60 seconds
-  pollTimer = setInterval(fetchData, 60000)
+  // Auto-refresh data daily at 9 PM
+  const scheduleRefresh = () => {
+    const nowLocal = new Date()
+    const target = new Date(nowLocal)
+    target.setHours(21, 0, 0, 0)
+    if (nowLocal.getTime() >= target.getTime()) {
+      target.setDate(target.getDate() + 1)
+    }
+    const delay = target.getTime() - nowLocal.getTime()
+    pollTimer = window.setTimeout(() => {
+      fetchData().finally(() => {
+        scheduleRefresh()
+      })
+    }, delay)
+  }
+  scheduleRefresh()
 })
 
 onUnmounted(() => {
   clearInterval(timer)
-  clearInterval(pollTimer)
+  clearTimeout(pollTimer)
 })
 
 const getCountdownTo9PM = () => {
