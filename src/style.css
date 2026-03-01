@@ -1,0 +1,14 @@
+@import "tailwindcss";
+
+@theme {
+  --color-brand-bg: #0f0f14;
+  --color-brand-violet: #7c3aed; /* tailwind violet-600 */
+  --color-brand-fuchsia: #d946ef; /* tailwind fuchsia-500 */
+}
+
+@layer base {
+  body {
+    background-color: var(--color-brand-bg);
+    color: #f3f4f6; /* gray-100 */
+  }
+}

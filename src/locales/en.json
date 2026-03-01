@@ -1,0 +1,95 @@
+{
+    "nav": {
+        "dashboard": "Dashboard",
+        "analysis": "Analysis",
+        "predictions": "Predictions",
+        "history": "History",
+        "combinatorial": "Combinatorial"
+    },
+    "games": {
+        "super_lotto_638": "Super Lotto 638",
+        "lotto_649": "Lotto 6/49",
+        "daily_cash_539": "Daily Cash 539"
+    },
+    "footer": {
+        "disclaimer": "Entertainment & Educational Purposes Only. Not Financial Advice."
+    },
+    "common": {
+        "loading": "Loading...",
+        "error_loading": "Unable to load data.",
+        "live": "Live"
+    },
+    "dashboard": {
+        "title": "Dashboard",
+        "subtitle": "Real-time tracking and statistical overviews for Taiwan Lottery games.",
+        "number_pool": "Number Pool",
+        "draw_count": "Draw Count",
+        "plus_special": "+ 1 Special",
+        "next_draw_countdown": "Next Draw Countdown",
+        "latest_draw": "Latest Draw",
+        "view_analysis": "View Analysis",
+        "fetching_live": "Fetching live data...",
+        "live_event": "LIVE DRAW EVENT",
+        "official_broadcast": "Official Broadcast"
+    },
+    "analysis": {
+        "title": "Statistical Analysis",
+        "subtitle": "Deep dive into historical number frequencies, gaps, and distributions using real Taiwanese lottery data.",
+        "no_data": "No data available for this game yet. Run the seeder and refresh.",
+        "hot_numbers": "🔥 Hot Numbers",
+        "cold_numbers": "❄️ Cold Numbers",
+        "overdue": "⏳ Overdue (Max Gap)",
+        "frequency_dist": "Frequency Distribution",
+        "based_on": "Based on last {count} draws",
+        "times": "x",
+        "days_ago": "d ago"
+    },
+    "predictions": {
+        "title": "Advanced Predictions",
+        "subtitle": "The Trio Strategy engine analyzing historical data to output Alpha, Beta, and Gamma statistical models.",
+        "no_data": "Unable to load historical data for predictions.",
+        "run_monte_carlo": "Run Monte Carlo Simulation",
+        "alpha": "Alpha Strategy",
+        "alpha_tag": "Balanced",
+        "beta": "Beta Strategy",
+        "beta_tag": "Momentum",
+        "gamma": "Gamma Strategy",
+        "gamma_tag": "Chaos / Black Swan",
+        "math_engine": "Mathematical Engine",
+        "risk_profile": "Risk Profile",
+        "alpha_justification": "Selected around the distribution center (Expected uniform mean: {mean}). Avoids statistical outliers.",
+        "alpha_risk": "Low Risk: Favors regression to the mean.",
+        "beta_justification": "Targets High-Momentum (Hot) numbers appearing most frequently in the last {history} draws.",
+        "beta_risk": "Medium Risk: Rides current wave/streak momentum.",
+        "gamma_justification": "Contrarian Black Swan selection. Targets the most overdue / cold numbers awaiting anomaly correction.",
+        "gamma_risk": "High Risk: Pure mathematical chaos / Cold number convergence."
+    },
+    "history": {
+        "title": "Draw History",
+        "subtitle": "View the 50 most recent confirmed draws for the selected lottery game.",
+        "no_data": "Unable to load historical data.",
+        "id": "Draw ID",
+        "date": "Date",
+        "winning_numbers": "Winning Numbers",
+        "special_number": "Special Number"
+    },
+    "picker": {
+        "title": "Number Picker Wheel",
+        "subtitle": "It is a simple tool to cover every possible pair of 12 to 16 numbers in just a few tickets. Your chances of success in winning will be increased by using this tool.",
+        "step1_title": "Choose 12 to 16 of your numbers",
+        "step1_desc": "Pick your luckiest numbers from the grid below. You must select at least 12 numbers and up to 16 numbers to create the combinatorial wheel.",
+        "step1_status": "{selected} / 16 numbers selected (Min: 12)",
+        "step2_title": "Confirm your numbers",
+        "step2_desc": "You have selected {count} numbers. You can change how they are sorted before rolling the tickets.",
+        "step2_empty": "No numbers chosen yet.",
+        "sort_asc": "Ascending",
+        "sort_desc": "Descending",
+        "sort_rand": "Random",
+        "step3_title": "Please select number of tickets",
+        "step3_desc": "Choose how many tickets you want the wheeling algorithm to generate for you using only your selected numbers.",
+        "tickets": "Tickets",
+        "generate": "Generate Combinations",
+        "result_title": "Total number of {count} tickets were generated from your number selections are listed below:",
+        "ticket_num": "Ticket #{num}"
+    }
+}

@@ -1,0 +1,95 @@
+{
+    "nav": {
+        "dashboard": "儀表板",
+        "analysis": "統計分析",
+        "predictions": "進階預測",
+        "history": "開獎歷史",
+        "combinatorial": "包牌選號"
+    },
+    "games": {
+        "super_lotto_638": "威力彩",
+        "lotto_649": "大樂透",
+        "daily_cash_539": "今彩539"
+    },
+    "footer": {
+        "disclaimer": "僅供娛樂與教學用途。非投資理財建議。"
+    },
+    "common": {
+        "loading": "載入中...",
+        "error_loading": "無法載入資料。",
+        "live": "最新"
+    },
+    "dashboard": {
+        "title": "儀表板",
+        "subtitle": "提供台灣彩券遊戲的即時追蹤與統計分析。",
+        "number_pool": "選號範圍",
+        "draw_count": "開出獎號",
+        "plus_special": "+ 1 特別號",
+        "next_draw_countdown": "下次開獎倒數",
+        "latest_draw": "最新開獎",
+        "view_analysis": "查看分析",
+        "fetching_live": "正在載入最新資料...",
+        "live_event": "開獎直播",
+        "official_broadcast": "官方轉播"
+    },
+    "analysis": {
+        "title": "統計分析",
+        "subtitle": "深入解析台灣彩券歷史開獎號碼的頻率、間距與分佈。",
+        "no_data": "目前沒有資料。請先執行資料播種程式(Seeder)並重新整理。",
+        "hot_numbers": "🔥 熱門號碼",
+        "cold_numbers": "❄️ 冷門號碼",
+        "overdue": "⏳ 遺漏最多 (最大間距)",
+        "frequency_dist": "出現頻率分佈",
+        "based_on": "基於最近 {count} 期",
+        "times": "次",
+        "days_ago": "期前"
+    },
+    "predictions": {
+        "title": "進階預測",
+        "subtitle": "使用 Trio Strategy 分析引擎，透過歷史數據產生 Alpha、Beta、Gamma 三種統計模型預測。",
+        "no_data": "無法載入歷史資料以進行預測。",
+        "run_monte_carlo": "執行蒙地卡羅模擬 (Monte Carlo)",
+        "alpha": "Alpha 策略",
+        "alpha_tag": "均衡型",
+        "beta": "Beta 策略",
+        "beta_tag": "動能型 (追熱)",
+        "gamma": "Gamma 策略",
+        "gamma_tag": "混沌 / 黑天鵝",
+        "math_engine": "數學模型說明",
+        "risk_profile": "風險評估",
+        "alpha_justification": "圍繞分佈中心進行選擇（預期均值：{mean}），避免選中統計上的極端值。",
+        "alpha_risk": "低風險：傾向均值回歸 (Regression to the mean)。",
+        "beta_justification": "鎖定在過去 {history} 期中最常出現的高動能（熱門）號碼。",
+        "beta_risk": "中風險：順應目前的數字熱度與趨勢。",
+        "gamma_justification": "逆勢黑天鵝選擇。鎖定最久未開出／最冷門的號碼，期待異常值的修正。",
+        "gamma_risk": "高風險：純粹的數學混沌與冷門號碼收斂。"
+    },
+    "history": {
+        "title": "開獎歷史",
+        "subtitle": "查看所選彩券遊戲最近 50 期的開獎紀錄。",
+        "no_data": "無法載入歷史資料。",
+        "id": "期數",
+        "date": "開獎日期",
+        "winning_numbers": "獎號",
+        "special_number": "特別號"
+    },
+    "picker": {
+        "title": "包牌選號",
+        "subtitle": "這是一個簡單好用的包牌工具，能讓您挑選 12 至 16 個號碼，並自動組合成多張彩券。使用此工具可以提高中獎機率。",
+        "step1_title": "請選擇 12 到 16 個號碼",
+        "step1_desc": "從下方數字區挑選您的幸運號碼。為了產生有效的排列組合，您必須選擇至少 12 個、最多 16 個數字。",
+        "step1_status": "已選擇 {selected} / 16 個號碼（最少需 12 個）",
+        "step2_title": "確認您的號碼",
+        "step2_desc": "您已選擇 {count} 個號碼。在產生彩券前，您可以調整號碼的排序方式。",
+        "step2_empty": "尚未選擇號碼。",
+        "sort_asc": "由小到大",
+        "sort_desc": "由大到小",
+        "sort_rand": "隨機打亂",
+        "step3_title": "請選擇要產生的彩券組數",
+        "step3_desc": "請設定您希望演算法使用您挑選的號碼，產生多少組號碼組合（注數）。",
+        "tickets": "注",
+        "generate": "產生組合",
+        "result_title": "系統已根據您挑選的號碼為您產生共 {count} 注彩券，列表如下：",
+        "ticket_num": "第 {num} 注"
+    }
+}
