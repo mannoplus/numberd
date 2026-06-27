@@ -2,6 +2,7 @@
 import { ref, onMounted, onUnmounted } from 'vue'
 import { formatLocalDate } from '../i18n'
 import { fetchTaiwanLotteryApi, getRecentMonths } from '../lib/api'
+import { getNextDrawDate, formatCountdown } from '../lib/countdown'
 
 const gameTypes = ref([
   { 
@@ -80,21 +81,15 @@ onUnmounted(() => {
   clearTimeout(pollTimer)
 })
 
-const getCountdownTo9PM = () => {
-  const target = new Date(now.value)
-  target.setHours(21, 0, 0, 0)
-  
-  // If we passed 9 PM, next target is tomorrow 9 PM
-  if (now.value.getTime() > target.getTime()) {
-    target.setDate(target.getDate() + 1)
+const getGameCountdown = (gameId: string) => {
+  try {
+    const nextDraw = getNextDrawDate(gameId, now.value)
+    const diff = nextDraw.getTime() - now.value.getTime()
+    return formatCountdown(diff)
+  } catch (e) {
+    console.error(e)
+    return '00:00:00'
   }
-  
-  const diff = target.getTime() - now.value.getTime()
-  const h = Math.floor((diff / (1000 * 60 * 60)) % 24)
-  const m = Math.floor((diff / 1000 / 60) % 60)
-  const s = Math.floor((diff / 1000) % 60)
-  
-  return `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`
 }
 </script>
 
@@ -129,7 +124,7 @@ const getCountdownTo9PM = () => {
             <div class="pt-4 mt-4 border-t border-gray-800">
               <p class="text-xs text-gray-500 mb-2 uppercase tracking-wide font-semibold">{{ $t('dashboard.next_draw_countdown') }}</p>
               <div class="text-2xl font-mono text-fuchsia-400">
-                {{ getCountdownTo9PM() }}
+                {{ getGameCountdown(game.id) }}
               </div>
             </div>
           </div>
