@@ -94,9 +94,9 @@ const getGameCountdown = (gameId: string) => {
 </script>
 
 <template>
-  <div class="px-4 py-8 max-w-7xl mx-auto space-y-8">
+  <div class="px-4 sm:px-6 py-6 sm:py-8 max-w-7xl mx-auto space-y-8">
     <header class="space-y-2">
-      <h1 class="text-4xl font-extrabold tracking-tight text-white">{{ $t('dashboard.title') }}</h1>
+      <h1 class="text-3xl sm:text-4xl font-extrabold tracking-tight text-white">{{ $t('dashboard.title') }}</h1>
       <p class="text-gray-400">{{ $t('dashboard.subtitle') }}</p>
     </header>
 
@@ -134,7 +134,7 @@ const getGameCountdown = (gameId: string) => {
           <div v-if="game.latestDraw">
             <div class="flex justify-between items-center mb-3">
               <span class="text-sm text-gray-400">{{ $t('dashboard.latest_draw') }} <span class="text-gray-500 text-xs">({{ formatLocalDate(game.latestDraw.date, $i18n.locale) }})</span></span>
-              <router-link to="/analysis" class="text-xs text-fuchsia-400 hover:text-fuchsia-300 font-medium transition-colors">
+              <router-link to="/analysis" class="inline-flex min-h-11 items-center rounded-lg px-2 text-xs font-medium text-fuchsia-400 transition-colors hover:bg-white/5 hover:text-fuchsia-300">
                 {{ $t('dashboard.view_analysis') }} &rarr;
               </router-link>
             </div>
@@ -163,7 +163,7 @@ const getGameCountdown = (gameId: string) => {
 
     <!-- YouTube Live Stream Embed -->
     <div class="space-y-4">
-      <div class="flex items-center gap-3">
+      <div class="flex flex-wrap items-center gap-3">
         <div class="bg-red-600/90 backdrop-blur-sm text-white text-xs font-bold px-3 py-1.5 rounded-full flex items-center gap-2 shadow-[0_0_15px_rgba(220,38,38,0.5)] border border-red-500/50 w-max">
           <div class="w-2 h-2 bg-white rounded-full animate-pulse"></div>
           {{ $t('dashboard.live_event') }}
@@ -171,17 +171,18 @@ const getGameCountdown = (gameId: string) => {
         <h2 class="text-xl font-bold text-white tracking-tight">{{ $t('dashboard.official_broadcast') }}</h2>
       </div>
 
-      <div class="w-full relative rounded-2xl overflow-hidden border border-gray-800 shadow-2xl bg-[#1a1a24] group">
-        <div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent pointer-events-none z-10 transition-opacity duration-300 group-hover:opacity-0"></div>
+      <div class="w-full relative rounded-xl sm:rounded-2xl overflow-hidden border border-gray-800 shadow-2xl bg-[#1a1a24] group">
         <div class="aspect-video w-full">
           <iframe 
             class="w-full h-full" 
-            src="https://www.youtube.com/embed/pF507BLtbqU?si=7yZtnBx6UDiIXuve&vq=hd1080&autoplay=1&mute=1" 
+            src="https://www.youtube.com/embed/pF507BLtbqU?si=7yZtnBx6UDiIXuve&vq=hd1080&autoplay=1&mute=1&fs=1&playsinline=1" 
             title="YouTube video player" 
             frameborder="0" 
-            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share; fullscreen" 
             referrerpolicy="strict-origin-when-cross-origin" 
-            allowfullscreen>
+            allowfullscreen
+            webkitallowfullscreen
+            mozallowfullscreen>
           </iframe>
         </div>
       </div>

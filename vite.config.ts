@@ -9,19 +9,50 @@ export default defineConfig({
     tailwindcss(),
     VitePWA({
       registerType: 'autoUpdate',
-      includeAssets: ['icon.svg'],
+      includeAssets: [
+        'favicon.ico',
+        'favicon-16x16.png',
+        'favicon-32x32.png',
+        'apple-touch-icon.png',
+        'icon.svg'
+      ],
       manifest: {
         name: 'NumberD Lottery Analysis',
         short_name: 'NumberD',
         description: 'Advanced predictive modeling for Taiwan Lottery games.',
         theme_color: '#0f0f14',
         background_color: '#0f0f14',
+        display: 'standalone',
         icons: [
           {
             src: 'icon.svg',
-            sizes: '192x192 512x512',
+            sizes: 'any',
             type: 'image/svg+xml',
-            purpose: 'any maskable'
+            purpose: 'any'
+          },
+          {
+            src: 'android-chrome-192x192.png',
+            sizes: '192x192',
+            type: 'image/png',
+            purpose: 'any'
+          },
+          {
+            src: 'android-chrome-512x512.png',
+            sizes: '512x512',
+            type: 'image/png',
+            purpose: 'any'
+          },
+          {
+            src: 'maskable-icon-192x192.png',
+            sizes: '192x192',
+            type: 'image/png',
+            purpose: 'maskable'
+          },
+          {
+            src: 'maskable-icon-512x512.png',
+            sizes: '512x512',
+            type: 'image/png',
+            purpose: 'maskable'
           }
         ]
       }

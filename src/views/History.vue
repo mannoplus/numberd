@@ -63,14 +63,14 @@ onUnmounted(() => {
 </script>
 
 <template>
-  <div class="px-4 py-8 max-w-7xl mx-auto space-y-8 pb-32">
+  <div class="px-4 sm:px-6 py-6 sm:py-8 max-w-7xl mx-auto space-y-8 pb-32">
     <header class="space-y-4">
       <div>
-        <h1 class="text-4xl font-extrabold tracking-tight text-white mb-2">{{ $t('history.title') }}</h1>
+        <h1 class="text-3xl sm:text-4xl font-extrabold tracking-tight text-white mb-2">{{ $t('history.title') }}</h1>
         <p class="text-gray-400">{{ $t('history.subtitle') }}</p>
       </div>
 
-      <div class="flex flex-wrap items-center gap-4 bg-[#1a1a24] p-2 rounded-xl border border-gray-800 w-max">
+      <div class="flex w-full flex-wrap items-center gap-2 rounded-xl border border-gray-800 bg-[#1a1a24] p-2 sm:w-auto sm:gap-4">
         <button 
           v-for="game in games" 
           :key="game.id"
@@ -79,7 +79,7 @@ onUnmounted(() => {
             selectedGame === game.id 
               ? 'bg-gradient-to-r from-violet-600 to-fuchsia-500 text-white shadow-lg' 
               : 'text-gray-400 hover:text-white hover:bg-white/5',
-            'px-6 py-2 rounded-lg font-medium transition-all duration-300'
+            'min-h-11 flex-1 px-3 py-2.5 text-sm font-medium rounded-lg transition-all duration-300 sm:flex-none sm:px-6'
           ]"
         >
           {{ $t('games.' + game.id) }}

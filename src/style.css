@@ -7,8 +7,16 @@
 }
 
 @layer base {
+  html {
+    background-color: var(--color-brand-bg);
+  }
+
   body {
     background-color: var(--color-brand-bg);
     color: #f3f4f6; /* gray-100 */
+  }
+
+  button, a, input, select {
+    touch-action: manipulation;
   }
 }

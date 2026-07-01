@@ -67,16 +67,16 @@ const resetGame = (gameId: string) => {
 </script>
 
 <template>
-  <div class="px-4 py-8 max-w-7xl mx-auto space-y-12 pb-32">
+  <div class="px-4 sm:px-6 py-6 sm:py-8 max-w-7xl mx-auto space-y-10 sm:space-y-12 pb-32">
     <header class="space-y-4">
       <div>
-        <h1 class="text-4xl font-extrabold tracking-tight text-white mb-2">{{ $t('picker.title') }}</h1>
+        <h1 class="text-3xl sm:text-4xl font-extrabold tracking-tight text-white mb-2">{{ $t('picker.title') }}</h1>
         <p class="text-gray-400 leading-relaxed max-w-3xl">
           {{ $t('picker.subtitle') }}
         </p>
       </div>
 
-      <div class="flex flex-wrap items-center gap-4 bg-[#1a1a24] p-2 rounded-xl border border-gray-800 w-max">
+      <div class="flex w-full flex-wrap items-center gap-2 rounded-xl border border-gray-800 bg-[#1a1a24] p-2 sm:w-auto sm:gap-4">
         <button 
           v-for="game in games" 
           :key="game.id"
@@ -85,7 +85,7 @@ const resetGame = (gameId: string) => {
             selectedGameId === game.id 
               ? 'bg-gradient-to-r from-violet-600 to-fuchsia-500 text-white shadow-lg' 
               : 'text-gray-400 hover:text-white hover:bg-white/5',
-            'px-6 py-2 rounded-lg font-medium transition-all duration-300'
+            'min-h-11 flex-1 px-3 py-2.5 text-sm font-medium rounded-lg transition-all duration-300 sm:flex-none sm:px-6'
           ]"
         >
           {{ $t('games.' + game.id) }}
@@ -96,7 +96,7 @@ const resetGame = (gameId: string) => {
     <div class="bg-[#1a1a24] rounded-2xl border border-gray-800 shadow-xl overflow-hidden divide-y divide-gray-800">
       
       <!-- STEP 1 -->
-      <div class="p-8 space-y-6">
+      <div class="p-5 sm:p-8 space-y-6">
         <div>
           <h2 class="text-xl font-bold text-white flex items-center gap-3">
             <span class="w-8 h-8 rounded-full bg-violet-600/20 text-violet-400 flex items-center justify-center text-sm">1</span>
@@ -107,7 +107,7 @@ const resetGame = (gameId: string) => {
           </p>
         </div>
 
-        <div class="pl-11">
+        <div class="pl-0 sm:pl-11">
           <div class="flex flex-wrap gap-2">
             <button
               v-for="n in selectedGame.pool"
@@ -118,7 +118,7 @@ const resetGame = (gameId: string) => {
                 selectedNumbers.includes(n)
                   ? 'bg-fuchsia-600 border-fuchsia-500 text-white shadow-[0_0_15px_rgba(217,70,239,0.4)]'
                   : 'bg-[#2a2a35] border-gray-700 text-gray-300 hover:border-gray-500',
-                'w-12 h-12 rounded-lg border flex items-center justify-center font-bold font-mono transition-all duration-200 disabled:opacity-30 disabled:cursor-not-allowed'
+                'h-11 w-11 rounded-lg border flex items-center justify-center font-bold font-mono transition-all duration-200 disabled:opacity-30 disabled:cursor-not-allowed sm:h-12 sm:w-12'
               ]"
             >
               {{ String(n).padStart(2, '0') }}
@@ -131,7 +131,7 @@ const resetGame = (gameId: string) => {
       </div>
 
       <!-- STEP 2 -->
-      <div class="p-8 space-y-6" :class="{ 'opacity-50 pointer-events-none': selectedNumbers.length < 12 }">
+      <div class="p-5 sm:p-8 space-y-6" :class="{ 'opacity-50 pointer-events-none': selectedNumbers.length < 12 }">
         <div>
           <h2 class="text-xl font-bold text-white flex items-center gap-3">
             <span class="w-8 h-8 rounded-full bg-violet-600/20 text-violet-400 flex items-center justify-center text-sm">2</span>
@@ -142,7 +142,7 @@ const resetGame = (gameId: string) => {
           </p>
         </div>
 
-        <div class="pl-11 space-y-6">
+        <div class="pl-0 sm:pl-11 space-y-6">
           <div class="flex flex-wrap gap-2 p-4 bg-black/30 rounded-xl border border-gray-800/50 min-h-[5rem] items-center">
             <div
               v-for="n in selectedNumbers"
@@ -155,15 +155,15 @@ const resetGame = (gameId: string) => {
           </div>
 
           <div class="flex flex-wrap gap-3">
-            <button @click="sortAscending" class="px-4 py-2 bg-[#2a2a35] hover:bg-[#323240] border border-gray-700 rounded-lg text-sm font-medium text-gray-300 transition-colors">{{ $t('picker.sort_asc') }}</button>
-            <button @click="sortDescending" class="px-4 py-2 bg-[#2a2a35] hover:bg-[#323240] border border-gray-700 rounded-lg text-sm font-medium text-gray-300 transition-colors">{{ $t('picker.sort_desc') }}</button>
-            <button @click="sortRandom" class="px-4 py-2 bg-[#2a2a35] hover:bg-[#323240] border border-gray-700 rounded-lg text-sm font-medium text-gray-300 transition-colors">{{ $t('picker.sort_rand') }}</button>
+            <button @click="sortAscending" class="min-h-11 px-4 py-2.5 bg-[#2a2a35] hover:bg-[#323240] border border-gray-700 rounded-lg text-sm font-medium text-gray-300 transition-colors">{{ $t('picker.sort_asc') }}</button>
+            <button @click="sortDescending" class="min-h-11 px-4 py-2.5 bg-[#2a2a35] hover:bg-[#323240] border border-gray-700 rounded-lg text-sm font-medium text-gray-300 transition-colors">{{ $t('picker.sort_desc') }}</button>
+            <button @click="sortRandom" class="min-h-11 px-4 py-2.5 bg-[#2a2a35] hover:bg-[#323240] border border-gray-700 rounded-lg text-sm font-medium text-gray-300 transition-colors">{{ $t('picker.sort_rand') }}</button>
           </div>
         </div>
       </div>
 
       <!-- STEP 3 -->
-      <div class="p-8 space-y-6" :class="{ 'opacity-50 pointer-events-none': selectedNumbers.length < 12 }">
+      <div class="p-5 sm:p-8 space-y-6" :class="{ 'opacity-50 pointer-events-none': selectedNumbers.length < 12 }">
         <div>
           <h2 class="text-xl font-bold text-white flex items-center gap-3">
             <span class="w-8 h-8 rounded-full bg-violet-600/20 text-violet-400 flex items-center justify-center text-sm">3</span>
@@ -174,21 +174,21 @@ const resetGame = (gameId: string) => {
           </p>
         </div>
 
-        <div class="pl-11 space-y-6">
+        <div class="pl-0 sm:pl-11 space-y-6">
           <div class="flex items-center gap-4 max-w-xs">
             <input 
               type="number" 
               v-model.number="ticketCount" 
               min="1" 
               max="100"
-              class="w-full bg-[#12121a] border border-gray-700 text-white text-lg rounded-lg focus:ring-fuchsia-500 focus:border-fuchsia-500 block p-2.5" 
+              class="min-h-11 w-full bg-[#12121a] border border-gray-700 text-white text-lg rounded-lg focus:ring-fuchsia-500 focus:border-fuchsia-500 block p-2.5" 
             />
             <span class="text-gray-400 font-medium whitespace-nowrap">{{ $t('picker.tickets') }}</span>
           </div>
 
           <button 
             @click="generateTickets"
-            class="px-8 py-3 bg-gradient-to-r from-violet-600 to-fuchsia-500 hover:from-violet-500 hover:to-fuchsia-400 text-white font-bold rounded-lg shadow-[0_0_20px_rgba(217,70,239,0.3)] transition-all"
+            class="min-h-12 px-8 py-3 bg-gradient-to-r from-violet-600 to-fuchsia-500 hover:from-violet-500 hover:to-fuchsia-400 text-white font-bold rounded-lg shadow-[0_0_20px_rgba(217,70,239,0.3)] transition-all"
           >
             {{ $t('picker.generate') }}
           </button>
@@ -196,7 +196,7 @@ const resetGame = (gameId: string) => {
       </div>
       
       <!-- RESULTS -->
-      <div v-if="generatedTickets.length > 0" class="p-8 bg-gradient-to-b from-black/20 to-transparent">
+      <div v-if="generatedTickets.length > 0" class="p-5 sm:p-8 bg-gradient-to-b from-black/20 to-transparent">
         <h3 class="text-lg font-bold text-emerald-400 mb-6">
           {{ $t('picker.result_title', { count: generatedTickets.length }) }}
         </h3>
