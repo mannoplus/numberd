@@ -1,7 +1,9 @@
 <script setup lang="ts">
 import { ref, onMounted, watch, onUnmounted } from 'vue'
 import { fetchTaiwanLotteryApi, getRecentMonths } from '../lib/api'
-import { Layers, Activity, Zap, RefreshCw } from 'lucide-vue-next'
+import { Layers, Activity, Zap, RefreshCw, Info } from 'lucide-vue-next'
+import type { EngineResult } from '../lib/engine'
+import PredictionWorker from '../lib/prediction.worker?worker'
 
 const games = [
   { id: 'super_lotto_638', name: 'Super Lotto 638', pool: 38, count: 6, hasSpecial: true, specialPool: 8 },
@@ -16,16 +18,12 @@ const history = ref<any[]>([])
 let pollTimer: number | undefined
 
 // State for predictions
-const predictions = ref<{
-  alpha: { numbers: number[], special: number | null, justificationKey: string, riskKey: string, params?: any },
-  beta: { numbers: number[], special: number | null, justificationKey: string, riskKey: string, params?: any },
-  gamma: { numbers: number[], special: number | null, justificationKey: string, riskKey: string, params?: any }
-} | null>(null)
+const predictions = ref<EngineResult | null>(null)
 
 const fetchAndGenerate = async () => {
   isLoading.value = true
   try {
-    const months = getRecentMonths(6)
+    const months = getRecentMonths(12) // Ensure enough data for bi-weekly games to hit 50 draws
     const data = await fetchTaiwanLotteryApi(selectedGame.value, months)
     history.value = data || []
     generatePredictions()
@@ -36,95 +34,43 @@ const fetchAndGenerate = async () => {
   }
 }
 
-// Fisher-Yates shuffle to pick N random distinct elements
-const pickRandom = (arr: number[], n: number) => {
-  const shuffled = [...arr].sort(() => 0.5 - Math.random())
-  return shuffled.slice(0, n).sort((a,b) => a - b)
-}
+// Utility removed to worker
 
 const generatePredictions = () => {
+  if (isGenerating.value) return
   isGenerating.value = true
+  
   const game = games.find(g => g.id === selectedGame.value)
-  if (!game || history.value.length === 0) return
+  if (!game || history.value.length === 0) {
+    isGenerating.value = false
+    return
+  }
 
-  setTimeout(() => {
-    // 1. Analyze History
-    const pool = game.pool
-    const count = game.count
-    
-    const counts = new Map<number, number>()
-    for (let i = 1; i <= pool; i++) counts.set(i, 0)
-
-    history.value.forEach(draw => {
-      draw.numbers.forEach((num: number) => {
-        counts.set(num, (counts.get(num) || 0) + 1)
-      })
-    })
-
-    const sortedFreq = Array.from(counts.entries()).sort((a, b) => b[1] - a[1])
-    const top20Percent = Math.max(1, Math.floor(pool * 0.2))
-    
-    // Arrays of numbers
-    const hot = sortedFreq.slice(0, top20Percent).map(x => x[0])
-    const cold = sortedFreq.slice(-top20Percent).map(x => x[0])
-    const fullPool = Array.from({ length: pool }, (_, i) => i + 1)
-    
-    // Middle 50% array
-    const midStart = Math.floor(pool * 0.25)
-    const midEnd = Math.floor(pool * 0.75)
-    const midRange = fullPool.filter(x => x >= midStart && x <= midEnd)
-
-    // Calculate Special Number if needed
-    const getSpecial = () => {
-      if (!game.hasSpecial) return null
-      return Math.floor(Math.random() * game.specialPool) + 1
-    }
-
-    // 2. Generate Trios
-    // Alpha: Balanced (Mid-range)
-    let alphaNums = pickRandom(midRange, count)
-    if (alphaNums.length < count) alphaNums = pickRandom(fullPool, count)
-
-    // Beta: Momentum (Hot)
-    let betaNums = pickRandom(hot, count)
-    if (betaNums.length < count) {
-      const remaining = pickRandom(fullPool.filter(n => !betaNums.includes(n)), count - betaNums.length)
-      betaNums = [...betaNums, ...remaining].sort((a,b) => a - b)
-    }
-
-    // Gamma: Chaos (Cold)
-    let gammaNums = pickRandom(cold, count)
-    if (gammaNums.length < count) {
-       const remaining = pickRandom(fullPool.filter(n => !gammaNums.includes(n)), count - gammaNums.length)
-       gammaNums = [...gammaNums, ...remaining].sort((a,b) => a - b)
-    }
-
-    const expectedMean = (pool + 1) / 2
-
-    predictions.value = {
-      alpha: {
-        numbers: alphaNums,
-        special: getSpecial(),
-        justificationKey: 'predictions.alpha_justification',
-        riskKey: 'predictions.alpha_risk',
-        params: { mean: expectedMean.toFixed(2) }
-      },
-      beta: {
-        numbers: betaNums,
-        special: getSpecial(),
-        justificationKey: 'predictions.beta_justification',
-        riskKey: 'predictions.beta_risk',
-        params: { history: history.value.length }
-      },
-      gamma: {
-        numbers: gammaNums,
-        special: getSpecial(),
-        justificationKey: 'predictions.gamma_justification',
-        riskKey: 'predictions.gamma_risk'
-      }
+  // Use the Web Worker for the heavy math logic
+  const worker = new PredictionWorker()
+  
+  worker.onmessage = (e) => {
+    if (e.data.success) {
+      predictions.value = e.data.result
+    } else {
+      console.error("Prediction Engine Error:", e.data.error)
     }
     isGenerating.value = false
-  }, 600) // Synthetic delay for UI feel
+    worker.terminate()
+  }
+
+  worker.onerror = (e) => {
+    console.error("Web Worker Error:", e)
+    isGenerating.value = false
+    worker.terminate()
+  }
+
+  // Pass history and wait for results (at least 600ms delay for UI feel)
+  const startTime = Date.now()
+  
+  setTimeout(() => {
+    worker.postMessage({ gameId: game.id, draws: history.value })
+  }, Math.max(0, 600 - (Date.now() - startTime)))
 }
 
 watch(selectedGame, () => {
@@ -235,11 +181,11 @@ onUnmounted(() => {
                 <div class="space-y-4 pt-4 border-t border-[var(--color-border-subtle)]">
                    <div>
                      <p class="text-xs text-[var(--color-text-tertiary)] uppercase font-mono tracking-wide mb-2">{{ $t('predictions.math_engine') }}</p>
-                     <p class="text-sm text-[var(--color-text-secondary)] leading-relaxed">{{ $t(predictions.alpha.justificationKey, predictions.alpha.params || {}) }}</p>
+                     <p class="text-sm text-[var(--color-text-secondary)] leading-relaxed">{{ predictions.alpha.narrative || predictions.alpha.justification }}</p>
                    </div>
                    <div>
                      <p class="text-xs text-[var(--color-text-tertiary)] uppercase font-mono tracking-wide mb-2">{{ $t('predictions.risk_profile') }}</p>
-                     <p class="text-sm font-mono font-medium text-[var(--color-text-primary)]">{{ $t(predictions.alpha.riskKey) }}</p>
+                     <p class="text-sm font-mono font-medium text-[var(--color-text-primary)]">{{ predictions.alpha.riskProfile }}</p>
                    </div>
                 </div>
              </div>
@@ -275,11 +221,11 @@ onUnmounted(() => {
                 <div class="space-y-4 pt-4 border-t border-[var(--color-border-subtle)]">
                    <div>
                      <p class="text-xs text-[#FFB224]/60 uppercase font-mono tracking-wide mb-2">{{ $t('predictions.math_engine') }}</p>
-                     <p class="text-sm text-[var(--color-text-primary)] leading-relaxed">{{ $t(predictions.beta.justificationKey, predictions.beta.params || {}) }}</p>
+                     <p class="text-sm text-[var(--color-text-primary)] leading-relaxed">{{ predictions.beta.narrative || predictions.beta.justification }}</p>
                    </div>
                    <div>
                      <p class="text-xs text-[#FFB224]/60 uppercase font-mono tracking-wide mb-2">{{ $t('predictions.risk_profile') }}</p>
-                     <p class="text-sm font-mono font-medium text-[#FFB224]">{{ $t(predictions.beta.riskKey) }}</p>
+                     <p class="text-sm font-mono font-medium text-[#FFB224]">{{ predictions.beta.riskProfile }}</p>
                    </div>
                 </div>
              </div>
@@ -315,17 +261,41 @@ onUnmounted(() => {
                 <div class="space-y-4 pt-4 border-t border-[var(--color-border-subtle)]">
                    <div>
                      <p class="text-xs text-[var(--color-text-tertiary)] uppercase font-mono tracking-wide mb-2">{{ $t('predictions.math_engine') }}</p>
-                     <p class="text-sm text-[var(--color-text-secondary)] leading-relaxed">{{ $t(predictions.gamma.justificationKey, predictions.gamma.params || {}) }}</p>
+                     <p class="text-sm text-[var(--color-text-secondary)] leading-relaxed">{{ predictions.gamma.narrative || predictions.gamma.justification }}</p>
                    </div>
                    <div>
                      <p class="text-xs text-[var(--color-text-tertiary)] uppercase font-mono tracking-wide mb-2">{{ $t('predictions.risk_profile') }}</p>
-                     <p class="text-sm font-mono font-medium text-[var(--color-text-primary)]">{{ $t(predictions.gamma.riskKey) }}</p>
+                     <p class="text-sm font-mono font-medium text-[var(--color-text-primary)]">{{ predictions.gamma.riskProfile }}</p>
                    </div>
                 </div>
              </div>
           </div>
         </div>
 
+      </div>
+
+      <!-- Metrics Breakdown & Disclaimer -->
+      <div v-if="predictions?.metrics" class="bg-[var(--color-surface-1)] rounded-sm border border-[var(--color-border-subtle)] p-6 mt-8 flex flex-col md:flex-row gap-6 justify-between items-start md:items-center">
+        <div class="flex flex-wrap gap-6">
+           <div class="flex flex-col">
+             <span class="text-[var(--color-text-tertiary)] text-xs font-mono uppercase tracking-widest mb-1">Target Mean Sum</span>
+             <span class="text-[var(--color-text-primary)] font-mono text-xl">{{ predictions.metrics.targetSum }}</span>
+           </div>
+           <div class="flex flex-col">
+             <span class="text-[var(--color-text-tertiary)] text-xs font-mono uppercase tracking-widest mb-1">Poisson Repeat %</span>
+             <span class="text-[var(--color-text-primary)] font-mono text-xl">{{ predictions.metrics.repeatProbability.toFixed(1) }}%</span>
+           </div>
+           <div class="flex flex-col">
+             <span class="text-[var(--color-text-tertiary)] text-xs font-mono uppercase tracking-widest mb-1">Hot / Cold Ratio</span>
+             <span class="text-[var(--color-text-primary)] font-mono text-xl">{{ predictions.metrics.hotCount }} / {{ predictions.metrics.coldCount }}</span>
+           </div>
+        </div>
+        <div class="flex items-start gap-3 max-w-sm text-[var(--color-text-secondary)]">
+          <Info class="w-4 h-4 mt-0.5 shrink-0" />
+          <p class="text-xs leading-relaxed">
+            Lottery draws are independent random events. These predictions are generated purely for statistical reference and entertainment based on the last 50 draws (as of {{ history[0]?.draw_date }}). They do not guarantee any outcomes.
+          </p>
+        </div>
       </div>
     </div>
   </div>
