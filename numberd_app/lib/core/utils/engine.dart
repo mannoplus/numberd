@@ -57,25 +57,27 @@ class EngineResult {
   });
 }
 
-int imul(int a, int b) {
-  int aHi = (a >>> 16) & 0xffff;
-  int aLo = a & 0xffff;
-  int bHi = (b >>> 16) & 0xffff;
-  int bLo = b & 0xffff;
-  return ((aLo * bLo) + (((aHi * bLo + aLo * bHi) << 16) >>> 0)) & 0xffffffff;
+int imul32(int a, int b) {
+  final a32 = a & 0xFFFFFFFF;
+  final b32 = b & 0xFFFFFFFF;
+  final lo = (a32 & 0xFFFF) * (b32 & 0xFFFF);
+  final mid1 = (a32 >>> 16) * (b32 & 0xFFFF);
+  final mid2 = (a32 & 0xFFFF) * (b32 >>> 16);
+  return (lo + ((mid1 + mid2) << 16)) & 0xFFFFFFFF;
 }
 
 class PRNG {
   int _state;
 
-  PRNG(this._state);
+  PRNG(int seed) : _state = seed & 0xFFFFFFFF;
 
   double nextDouble() {
     _state = (_state + 0x6D2B79F5) & 0xFFFFFFFF;
     int t = _state;
-    t = imul(t ^ (t >>> 15), t | 1);
-    t ^= t + imul(t ^ (t >>> 7), t | 61);
-    return ((t ^ (t >>> 14)) >>> 0) / 4294967296.0;
+    t = imul32(t ^ (t >>> 15), t | 1);
+    t = (t ^ (t + imul32(t ^ (t >>> 7), t | 61))) & 0xFFFFFFFF;
+    int res = (t ^ (t >>> 14)) & 0xFFFFFFFF;
+    return res / 4294967296.0;
   }
 }
 
@@ -84,9 +86,9 @@ int hashString(String str) {
   for (int i = 0; i < str.length; i++) {
     final char = str.codeUnitAt(i);
     hash = ((hash << 5) - hash) + char;
-    hash = hash & hash;
+    hash = hash & 0xFFFFFFFF;
   }
-  return hash >>> 0;
+  return hash & 0xFFFFFFFF;
 }
 
 List<int> pickRandom(List<int> arr, int n, PRNG rng) {
