@@ -90,6 +90,12 @@ int hashString(String str) {
 }
 
 List<int> pickRandom(List<int> arr, int n, PRNG rng) {
+  if (arr.isEmpty) return [];
+  if (arr.length <= n) {
+    final res = List<int>.from(arr);
+    res.sort();
+    return res;
+  }
   final shuffled = List<int>.from(arr);
   for (int i = shuffled.length - 1; i > 0; i--) {
     final j = (rng.nextDouble() * (i + 1)).floor();
@@ -111,7 +117,11 @@ EngineResult runPredictionEngine(String gameId, List<DrawRecord> rawDraws) {
   final sortedDraws = List<DrawRecord>.from(rawDraws)
     ..sort((a, b) => DateTime.parse(b.drawDate).compareTo(DateTime.parse(a.drawDate)));
   
-  final validDraws = sortedDraws.where((d) => d.numbers.length == schema.count).take(50).toList();
+  // Filter valid draws: ensure exact count and that all numbers are within pool boundaries
+  final validDraws = sortedDraws.where((d) => 
+    d.numbers.length == schema.count &&
+    d.numbers.every((n) => n >= 1 && n <= schema.pool)
+  ).take(50).toList();
 
   if (validDraws.isEmpty) {
     throw StateError("No valid draws found for $gameId");
@@ -137,10 +147,12 @@ EngineResult runPredictionEngine(String gameId, List<DrawRecord> rawDraws) {
     }
     
     for (final num in draw.numbers) {
-      final s = stats[num]!;
-      s.count++;
-      s.recencyWeight += decay;
-      s.gap = 0;
+      final s = stats[num];
+      if (s != null) {
+        s.count++;
+        s.recencyWeight += decay;
+        s.gap = 0;
+      }
     }
   }
 
@@ -216,7 +228,7 @@ EngineResult runPredictionEngine(String gameId, List<DrawRecord> rawDraws) {
 
   // --- 5. Generate Sets ---
   int? getSpecial(PRNG rngFunc) {
-    if (!schema.hasSpecial) return null;
+    if (!schema.hasSpecial || schema.specialPool <= 0) return null;
     return (rngFunc.nextDouble() * schema.specialPool).floor() + 1;
   }
 
@@ -227,7 +239,7 @@ EngineResult runPredictionEngine(String gameId, List<DrawRecord> rawDraws) {
     riskProfile: 'Low Variance - Converges to Mean',
   );
 
-  // Beta
+  // Beta (Momentum)
   final betaNums = <int>{};
   if (repeatProbability > 50 && validDraws[0].numbers.isNotEmpty) {
     final lastDrawNums = validDraws[0].numbers;
@@ -236,8 +248,8 @@ EngineResult runPredictionEngine(String gameId, List<DrawRecord> rawDraws) {
   
   if (strongPairs.isNotEmpty) {
     final topPair = strongPairs[0].key.split(',').map(int.parse).toList();
-    betaNums.add(topPair[0]);
-    betaNums.add(topPair[1]);
+    if (topPair[0] >= 1 && topPair[0] <= schema.pool) betaNums.add(topPair[0]);
+    if (topPair[1] >= 1 && topPair[1] <= schema.pool) betaNums.add(topPair[1]);
   }
 
   int hotIdx = 0;
@@ -257,7 +269,7 @@ EngineResult runPredictionEngine(String gameId, List<DrawRecord> rawDraws) {
     riskProfile: 'High Momentum - Trend Following',
   );
 
-  // Gamma
+  // Gamma (Chaos)
   final isOddChaos = rng.nextDouble() > 0.5;
   final chaosPool = coldNumbers.where((n) => (n % 2 != 0) == isOddChaos).toList();
   List<int> gammaArray = pickRandom(chaosPool.length >= schema.count ? chaosPool : coldNumbers, schema.count, rng);
@@ -291,3 +303,4 @@ class _Stat {
 
   _Stat({required this.count, required this.recencyWeight, required this.gap});
 }
+

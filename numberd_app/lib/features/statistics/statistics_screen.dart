@@ -40,23 +40,48 @@ class StatisticsScreen extends ConsumerWidget {
             sliver: statsState.when(
               data: (result) {
                 if (result == null) {
-                  return const SliverToBoxAdapter(child: Center(child: Text('No data for statistics')));
+                  return const SliverToBoxAdapter(
+                    child: Center(
+                      child: Padding(
+                        padding: EdgeInsets.all(40.0),
+                        child: Text(
+                          'NO DATA AVAILABLE',
+                          style: TextStyle(color: AppColors.textMuted, fontFamily: 'Roboto Mono'),
+                        ),
+                      ),
+                    ),
+                  );
                 }
                 return SliverList(
                   delegate: SliverChildListDelegate([
+                    // 1. Three Summary Cards: Hot, Cold, Overdue
                     _buildStatCard(
                       'Hot Numbers', 
-                      'Highest frequency with recency decay', 
+                      'Highest draw frequency', 
                       AppColors.hot, 
-                      result.hotNumbers
+                      result.hotNumbers,
+                      isGap: false,
                     ),
                     const SizedBox(height: 16),
                     _buildStatCard(
                       'Cold Numbers', 
-                      'Highest gap since last appearance', 
+                      'Lowest draw frequency', 
                       AppColors.cold, 
-                      result.coldNumbers
+                      result.coldNumbers,
+                      isGap: false,
                     ),
+                    const SizedBox(height: 16),
+                    _buildStatCard(
+                      'Overdue / Max Gap', 
+                      'Longest gap since last draw', 
+                      AppColors.primary, 
+                      result.maxGapNumbers,
+                      isGap: true,
+                    ),
+                    const SizedBox(height: 28),
+
+                    // 2. Frequency Distribution View
+                    _buildFrequencyDistributionCard(result),
                     const SizedBox(height: 40),
                   ]),
                 );
@@ -130,7 +155,7 @@ class StatisticsScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildStatCard(String title, String subtitle, Color color, List<NumberStat> stats) {
+  Widget _buildStatCard(String title, String subtitle, Color color, List<NumberStat> stats, {required bool isGap}) {
     return Container(
       decoration: BoxDecoration(
         color: AppColors.surface,
@@ -156,13 +181,14 @@ class StatisticsScreen extends ConsumerWidget {
                     color: color,
                     fontWeight: FontWeight.bold,
                     fontFamily: 'Roboto Mono',
-                    fontSize: 16,
+                    fontSize: 14,
                     letterSpacing: 1,
                   ),
                 ),
+                const SizedBox(height: 2),
                 Text(
                   subtitle.toUpperCase(),
-                  style: TextStyle(
+                  style: const TextStyle(
                     color: AppColors.textMuted,
                     fontSize: 10,
                     fontFamily: 'Roboto Mono',
@@ -172,11 +198,12 @@ class StatisticsScreen extends ConsumerWidget {
             ),
           ),
           Padding(
-            padding: const EdgeInsets.all(20),
+            padding: const EdgeInsets.all(16),
             child: Wrap(
               spacing: 12,
-              runSpacing: 16,
-              children: stats.map((s) => _buildStatItem(s)).toList(),
+              runSpacing: 12,
+              alignment: WrapAlignment.start,
+              children: stats.map((s) => _buildStatItem(s, color, isGap: isGap)).toList(),
             ),
           ),
         ],
@@ -184,28 +211,134 @@ class StatisticsScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildStatItem(NumberStat stat) {
-    return Column(
-      children: [
-        NumberBall(number: stat.number, size: 40),
-        const SizedBox(height: 6),
-        Container(
-          padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
-          decoration: BoxDecoration(
-            color: AppColors.surfaceLight,
-            borderRadius: BorderRadius.circular(2),
-          ),
-          child: Text(
-            'GAP ${stat.gap}',
-            style: const TextStyle(
-              color: AppColors.textSecondary,
-              fontFamily: 'Roboto Mono',
-              fontSize: 9,
-              fontWeight: FontWeight.bold,
+  Widget _buildStatItem(NumberStat stat, Color accentColor, {required bool isGap}) {
+    final labelText = isGap ? '${stat.gap} DRAWS AGO' : '${stat.count} TIMES';
+    return SizedBox(
+      width: 58,
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          NumberBall(number: stat.number, size: 40),
+          const SizedBox(height: 6),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
+            decoration: BoxDecoration(
+              color: AppColors.surfaceLight,
+              borderRadius: BorderRadius.circular(2),
+              border: Border.all(color: accentColor.withAlpha(50), width: 0.5),
+            ),
+            child: Text(
+              labelText,
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                color: accentColor,
+                fontFamily: 'Roboto Mono',
+                fontSize: 8,
+                fontWeight: FontWeight.bold,
+              ),
             ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
+
+  Widget _buildFrequencyDistributionCard(StatisticsResult result) {
+    final maxCount = result.allStats.map((s) => s.count).fold(1, (a, b) => a > b ? a : b);
+
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: AppColors.surface,
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(color: AppColors.border),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              const Text(
+                'FREQUENCY DISTRIBUTION',
+                style: TextStyle(
+                  color: AppColors.textPrimary,
+                  fontWeight: FontWeight.bold,
+                  fontFamily: 'Roboto Mono',
+                  fontSize: 14,
+                  letterSpacing: 1,
+                ),
+              ),
+              Text(
+                'BASED ON ${result.totalDrawsCount} DRAWS',
+                style: const TextStyle(
+                  color: AppColors.textMuted,
+                  fontFamily: 'Roboto Mono',
+                  fontSize: 10,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 20),
+          SizedBox(
+            height: 180,
+            child: SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: result.allStats.map((stat) {
+                  final barHeight = maxCount > 0 ? (stat.count / maxCount) * 130.0 : 0.0;
+                  return Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 3.0),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      children: [
+                        Text(
+                          '${stat.count}',
+                          style: const TextStyle(
+                            color: AppColors.textMuted,
+                            fontSize: 8,
+                            fontFamily: 'Roboto Mono',
+                          ),
+                        ),
+                        const SizedBox(height: 4),
+                        Container(
+                          width: 14,
+                          height: mathMax(barHeight, 4.0),
+                          decoration: BoxDecoration(
+                            color: AppColors.primary,
+                            borderRadius: const BorderRadius.vertical(top: Radius.circular(2)),
+                            boxShadow: [
+                              BoxShadow(
+                                color: AppColors.primary.withAlpha(51),
+                                blurRadius: 4,
+                              ),
+                            ],
+                          ),
+                        ),
+                        const SizedBox(height: 6),
+                        Text(
+                          stat.number.toString().padLeft(2, '0'),
+                          style: const TextStyle(
+                            color: AppColors.textSecondary,
+                            fontSize: 9,
+                            fontFamily: 'Roboto Mono',
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ],
+                    ),
+                  );
+                }).toList(),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  double mathMax(double a, double b) => a > b ? a : b;
 }
+

@@ -5,7 +5,9 @@ import 'core/theme/colors.dart';
 import 'features/dashboard/dashboard_screen.dart';
 import 'features/predictions/predictions_screen.dart';
 import 'features/statistics/statistics_screen.dart';
+import 'features/history/history_screen.dart';
 import 'features/combinations/combinations_screen.dart';
+import 'shared/widgets/nav_icons.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -40,15 +42,19 @@ class _MainShellState extends State<MainShell> {
     const DashboardScreen(),
     const PredictionsScreen(),
     const StatisticsScreen(),
+    const HistoryScreen(),
     const CombinationsScreen(),
   ];
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: _screens[_currentIndex],
+      body: IndexedStack(
+        index: _currentIndex,
+        children: _screens,
+      ),
       bottomNavigationBar: Container(
-        decoration: BoxDecoration(
+        decoration: const BoxDecoration(
           border: Border(
             top: BorderSide(color: AppColors.border, width: 1),
           ),
@@ -68,25 +74,40 @@ class _MainShellState extends State<MainShell> {
           showUnselectedLabels: true,
           selectedFontSize: 10,
           unselectedFontSize: 10,
-          items: const [
+          items: [
             BottomNavigationBarItem(
-              icon: Icon(Icons.dashboard_outlined),
-              activeIcon: Icon(Icons.dashboard),
+              icon: Padding(
+                padding: const EdgeInsets.only(bottom: 4),
+                child: NavIcon(index: 0, isSelected: _currentIndex == 0),
+              ),
               label: 'DASHBOARD',
             ),
             BottomNavigationBarItem(
-              icon: Icon(Icons.auto_graph_outlined),
-              activeIcon: Icon(Icons.auto_graph),
+              icon: Padding(
+                padding: const EdgeInsets.only(bottom: 4),
+                child: NavIcon(index: 1, isSelected: _currentIndex == 1),
+              ),
               label: 'PREDICT',
             ),
             BottomNavigationBarItem(
-              icon: Icon(Icons.analytics_outlined),
-              activeIcon: Icon(Icons.analytics),
+              icon: Padding(
+                padding: const EdgeInsets.only(bottom: 4),
+                child: NavIcon(index: 2, isSelected: _currentIndex == 2),
+              ),
               label: 'STATS',
             ),
             BottomNavigationBarItem(
-              icon: Icon(Icons.grid_view_outlined),
-              activeIcon: Icon(Icons.grid_view),
+              icon: Padding(
+                padding: const EdgeInsets.only(bottom: 4),
+                child: NavIcon(index: 3, isSelected: _currentIndex == 3),
+              ),
+              label: 'HISTORY',
+            ),
+            BottomNavigationBarItem(
+              icon: Padding(
+                padding: const EdgeInsets.only(bottom: 4),
+                child: NavIcon(index: 4, isSelected: _currentIndex == 4),
+              ),
               label: 'PICKER',
             ),
           ],
@@ -95,3 +116,4 @@ class _MainShellState extends State<MainShell> {
     );
   }
 }
+
