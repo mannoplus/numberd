@@ -100,33 +100,6 @@ const getGameCountdown = (gameId: string) => {
       <p class="text-[var(--color-text-secondary)] font-mono text-sm uppercase">{{ $t('dashboard.subtitle') }}</p>
     </header>
 
-    <!-- YouTube Live Stream Embed -->
-    <div class="space-y-4">
-      <div class="flex flex-wrap items-center gap-3">
-        <div class="bg-[var(--color-hot)]/10 text-[var(--color-hot)] text-xs font-mono font-bold px-3 py-1.5 rounded-sm flex items-center gap-2 border border-[var(--color-hot)]/30 w-max tracking-widest uppercase">
-          <div class="w-2 h-2 bg-[var(--color-hot)] rounded-full animate-pulse shadow-[0_0_8px_var(--color-hot)]"></div>
-          {{ $t('dashboard.live_event') }}
-        </div>
-        <h2 class="text-xl font-bold text-[var(--color-text-primary)] tracking-tight">{{ $t('dashboard.official_broadcast') }}</h2>
-      </div>
-
-      <div class="w-full relative rounded-sm overflow-hidden border border-[var(--color-border-subtle)] bg-[var(--color-surface-1)]">
-        <div class="aspect-video w-full">
-          <iframe 
-            class="w-full h-full" 
-            src="https://www.youtube.com/embed/pF507BLtbqU?si=7yZtnBx6UDiIXuve&vq=hd1080&autoplay=1&mute=1&fs=1&playsinline=1" 
-            title="YouTube video player" 
-            frameborder="0" 
-            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share; fullscreen" 
-            referrerpolicy="strict-origin-when-cross-origin" 
-            allowfullscreen
-            webkitallowfullscreen
-            mozallowfullscreen>
-          </iframe>
-        </div>
-      </div>
-    </div>
-
     <!-- Games Grid -->
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
       <div v-for="game in gameTypes" :key="game.id" class="bg-[var(--color-surface-1)] rounded-sm border border-[var(--color-border-subtle)] overflow-hidden hover:border-[#FFB224]/50 transition-colors duration-300 relative group">
@@ -185,6 +158,34 @@ const getGameCountdown = (gameId: string) => {
           <div v-else class="flex h-full items-center justify-center">
             <span class="text-[var(--color-text-tertiary)] text-sm font-mono uppercase animate-pulse">{{ $t('dashboard.fetching_live') }}</span>
           </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- YouTube Live Stream Embed -->
+    <div class="space-y-4 pt-6">
+      <div class="flex flex-wrap items-center gap-3">
+        <div class="bg-[var(--color-hot)]/10 text-[var(--color-hot)] text-xs font-mono font-bold px-3 py-1.5 rounded-sm flex items-center gap-2 border border-[var(--color-hot)]/30 w-max tracking-widest uppercase">
+          <div class="w-2 h-2 bg-[var(--color-hot)] rounded-full animate-pulse shadow-[0_0_8px_var(--color-hot)]"></div>
+          {{ $t('dashboard.live_event') }}
+        </div>
+        <h2 class="text-xl font-bold text-[var(--color-text-primary)] tracking-tight">{{ $t('dashboard.official_broadcast') }}</h2>
+      </div>
+
+      <div class="w-full relative rounded-2xl overflow-hidden border border-[var(--color-border-subtle)] bg-[var(--color-surface-1)] shadow-[0_10px_40px_-10px_rgba(0,0,0,0.5)] p-4 sm:p-6 transition-all duration-300 hover:border-[#FFB224]/30 hover:shadow-[0_10px_40px_-10px_rgba(255,178,36,0.15)]">
+        <div class="absolute inset-0 bg-gradient-to-br from-[#FFB224]/5 to-transparent pointer-events-none opacity-50"></div>
+        <div class="aspect-video w-full rounded-xl overflow-hidden border border-[#000000] shadow-inner relative z-10 bg-black">
+          <iframe 
+            class="w-full h-full" 
+            src="https://www.youtube.com/embed/pF507BLtbqU?si=7yZtnBx6UDiIXuve&vq=hd1080&autoplay=1&mute=1&fs=1&playsinline=1" 
+            title="YouTube video player" 
+            frameborder="0" 
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share; fullscreen" 
+            referrerpolicy="strict-origin-when-cross-origin" 
+            allowfullscreen
+            webkitallowfullscreen
+            mozallowfullscreen>
+          </iframe>
         </div>
       </div>
     </div>
