@@ -1,35 +1,30 @@
-# Implementation Plan - UI/UX Improvements and Bug Fixes
+# Implementation Plan - Fix App Icon and Complete Branding
 
-Address mobile navigation overlap, YouTube fullscreen, app branding, and mobile responsiveness in the NumberD Android wrapper.
+Address the issue of the app icon not showing on devices and finalize the premium branding.
 
 ## Proposed Changes
 
-### Android Wrapper Updates
+### Android Manifest Updates
 
-#### [MODIFY] [MainActivity.kt](file:///Users/thebass/Documents/BigMisc/projnumbrd/numberd/android-wrapper/app/src/main/java/com/numberd/app/MainActivity.kt)
-- Update `NumberDAppWrapper` to handle status bar insets using `Modifier.statusBarsPadding()`.
-- Implement a custom `WebChromeClient` to support YouTube fullscreen by overriding `onShowCustomView` and `onHideCustomView`.
-- Refine the `OfflineFallback` UI to match the new "premium" branding.
-- Enable `setSupportMultipleWindows` and other WebView settings for better mobile experience.
+#### [MODIFY] [AndroidManifest.xml](file:///Users/thebass/Documents/BigMisc/projnumbrd/numberd/android-wrapper/app/src/main/AndroidManifest.xml)
+- Change `android:icon` from `@mipmap/nmrdlogo_icon` to `@mipmap/ic_launcher`.
+- Change `android:roundIcon` from `@mipmap/nmrdlogo_icon_round` to `@mipmap/ic_launcher_round`.
 
-#### [NEW] [ic_numberd_logo.xml](file:///Users/thebass/Documents/BigMisc/projnumbrd/numberd/android-wrapper/app/src/main/res/drawable/ic_numberd_logo.xml)
-- Create a modern, bold "N" logo as a Vector Drawable with purple gradients.
+### Icon Resource Updates
 
-#### [MODIFY] [nmrdlogo_icon.xml](file:///Users/thebass/Documents/BigMisc/projnumbrd/numberd/android-wrapper/app/src/main/res/mipmap-anydpi-v26/nmrdlogo_icon.xml)
-- Update to use the new `ic_numberd_logo.xml` as the foreground.
+#### [MODIFY] [ic_launcher.xml](file:///Users/thebass/Documents/BigMisc/projnumbrd/numberd/android-wrapper/app/src/main/res/mipmap-anydpi-v26/ic_launcher.xml)
+- Update to use `@drawable/ic_numberd_logo` as the foreground for a high-quality vector "N" logo.
+- Ensure `@color/ic_launcher_background` is used for the background.
 
-#### [MODIFY] [nmrdlogo_icon_round.xml](file:///Users/thebass/Documents/BigMisc/projnumbrd/numberd/android-wrapper/app/src/main/res/mipmap-anydpi-v26/nmrdlogo_icon_round.xml)
-- Update to use the new `ic_numberd_logo.xml` as the foreground.
+#### [MODIFY] [ic_launcher_round.xml](file:///Users/thebass/Documents/BigMisc/projnumbrd/numberd/android-wrapper/app/src/main/res/mipmap-anydpi-v26/ic_launcher_round.xml)
+- Update to use `@drawable/ic_numberd_logo` as the foreground.
 
 ## Verification Plan
 
 ### Automated Tests
-- Build the app to ensure no compilation errors.
-- Run `gradle :app:assembleDebug`.
+- Run `gradle :app:assembleDebug` to verify resources are valid.
 
 ### Manual Verification
-- Deploy to an Android emulator/device.
-- Verify the hamburger menu is below the status bar.
-- Verify YouTube videos can enter fullscreen.
-- Check the new app icon on the home screen.
-- Verify the offline screen looks professional.
+- Deploy to device/emulator.
+- Check if the "N" logo appears correctly on the home screen and in the app drawer.
+- Verify the splash screen still looks correct.

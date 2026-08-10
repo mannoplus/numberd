@@ -163,20 +163,20 @@ onUnmounted(() => {
   <div class="px-4 sm:px-6 py-6 sm:py-8 max-w-7xl mx-auto space-y-8 pb-32">
     <header class="space-y-4">
       <div>
-        <h1 class="text-3xl sm:text-4xl font-extrabold tracking-tight text-white mb-2">{{ $t('predictions.title') }}</h1>
-        <p class="text-gray-400">{{ $t('predictions.subtitle') }}</p>
+        <h1 class="text-3xl sm:text-4xl font-extrabold tracking-tight text-[var(--color-text-primary)] mb-2">{{ $t('predictions.title') }}</h1>
+        <p class="text-[var(--color-text-secondary)] font-mono text-sm uppercase tracking-wide">{{ $t('predictions.subtitle') }}</p>
       </div>
 
-      <div class="flex w-full flex-wrap items-center gap-2 rounded-xl border border-gray-800 bg-[#1a1a24] p-2 sm:w-auto sm:gap-4">
+      <div class="flex w-full flex-wrap items-center gap-2 rounded-sm border border-[var(--color-border-subtle)] bg-[var(--color-surface-1)] p-2 sm:w-auto sm:gap-4">
         <button 
           v-for="game in games" 
           :key="game.id"
           @click="selectedGame = game.id"
           :class="[
             selectedGame === game.id 
-              ? 'bg-gradient-to-r from-violet-600 to-fuchsia-500 text-white shadow-lg' 
-              : 'text-gray-400 hover:text-white hover:bg-white/5',
-            'min-h-11 flex-1 px-3 py-2.5 text-sm font-medium rounded-lg transition-all duration-300 sm:flex-none sm:px-6'
+              ? 'bg-[#FFB224] text-black shadow-sm font-bold' 
+              : 'text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)] hover:bg-[var(--color-surface-2)]',
+            'min-h-11 flex-1 px-3 py-2.5 text-sm font-mono uppercase tracking-wide rounded-sm transition-all duration-300 sm:flex-none sm:px-6 border border-transparent'
           ]"
         >
           {{ $t('games.' + game.id) }}
@@ -185,10 +185,10 @@ onUnmounted(() => {
     </header>
 
     <div v-if="isLoading" class="flex items-center justify-center p-20">
-      <div class="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-fuchsia-500"></div>
+      <div class="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-[#FFB224]"></div>
     </div>
     
-    <div v-else-if="history.length === 0" class="bg-[#1a1a24] rounded-2xl border border-gray-800 p-8 text-center text-gray-400">
+    <div v-else-if="history.length === 0" class="bg-[var(--color-surface-1)] rounded-sm border border-[var(--color-border-subtle)] p-8 text-center text-[var(--color-text-secondary)] font-mono uppercase">
       {{ $t('predictions.no_data') }}
     </div>
 
@@ -197,7 +197,7 @@ onUnmounted(() => {
         <button 
           @click="generatePredictions" 
           :disabled="isGenerating"
-          class="flex min-h-11 items-center gap-2 rounded-lg border border-gray-700 bg-white/5 px-4 py-2.5 text-white transition-colors hover:bg-white/10 disabled:opacity-50"
+          class="flex min-h-11 items-center gap-2 rounded-sm border border-[var(--color-border-focus)] bg-[var(--color-surface-2)] px-4 py-2.5 text-[var(--color-text-primary)] font-mono text-sm uppercase tracking-wide transition-colors hover:bg-[var(--color-surface-3)] hover:border-[#FFB224]/50 hover:text-[#FFB224] disabled:opacity-50"
         >
           <RefreshCw class="w-4 h-4" :class="{ 'animate-spin': isGenerating }" />
           {{ $t('predictions.run_monte_carlo') }}
@@ -207,39 +207,39 @@ onUnmounted(() => {
       <div class="grid grid-cols-1 md:grid-cols-3 gap-6" :class="{ 'opacity-50 transition-opacity': isGenerating }">
         
         <!-- Alpha Card -->
-        <div class="bg-[#1a1a24] rounded-2xl border border-gray-800 p-6 sm:p-8 relative overflow-hidden group hover:border-violet-500/50 transition-all duration-300">
-          <div class="absolute inset-0 bg-gradient-to-b from-blue-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
-          <div class="absolute top-0 inset-x-0 h-1 bg-gradient-to-r from-blue-600 to-violet-500"></div>
+        <div class="bg-[var(--color-surface-1)] rounded-sm border border-[var(--color-border-subtle)] p-6 sm:p-8 relative overflow-hidden group hover:border-[#FFB224]/30 transition-all duration-300">
+          <div class="absolute inset-0 bg-gradient-to-b from-[#FFB224]/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
+          <div class="absolute top-0 inset-x-0 h-0.5 bg-[var(--color-border-subtle)] group-hover:bg-[#FFB224] transition-colors"></div>
           
           <div class="relative">
              <div class="flex items-center gap-3 mb-6">
-                <div class="w-10 h-10 rounded-lg bg-blue-500/20 flex items-center justify-center text-blue-400">
+                <div class="w-10 h-10 rounded-sm bg-[var(--color-surface-2)] border border-[var(--color-border-subtle)] flex items-center justify-center text-[var(--color-text-secondary)] group-hover:text-[#FFB224] transition-colors">
                   <Layers class="w-5 h-5" />
                 </div>
                 <div>
-                  <h3 class="text-xl font-bold text-white">{{ $t('predictions.alpha') }}</h3>
-                  <span class="text-xs font-semibold text-blue-400 uppercase tracking-wider">{{ $t('predictions.alpha_tag') }}</span>
+                  <h3 class="text-xl font-bold text-[var(--color-text-primary)] group-hover:text-[#FFB224] transition-colors">{{ $t('predictions.alpha') }}</h3>
+                  <span class="text-xs font-mono font-semibold text-[var(--color-text-tertiary)] uppercase tracking-wider group-hover:text-[#FFB224]/70 transition-colors">{{ $t('predictions.alpha_tag') }}</span>
                 </div>
              </div>
 
              <div v-if="predictions?.alpha" class="space-y-6">
                 <div class="flex flex-wrap gap-2">
-                  <div v-for="num in predictions.alpha.numbers" :key="num" class="w-10 h-10 flex items-center justify-center rounded-full bg-black/40 border border-gray-700 text-white font-bold shadow-inner">
+                  <div v-for="num in predictions.alpha.numbers" :key="num" class="w-10 h-10 flex items-center justify-center rounded-sm bg-[var(--color-surface-3)] border border-[var(--color-border-subtle)] text-[var(--color-text-primary)] font-mono font-bold">
                     {{ String(num).padStart(2, '0') }}
                   </div>
-                  <div v-if="predictions.alpha.special" class="w-10 h-10 flex items-center justify-center rounded-full bg-blue-900/40 border-2 border-blue-500 text-blue-100 font-bold shadow-[0_0_15px_rgba(59,130,246,0.3)]">
+                  <div v-if="predictions.alpha.special" class="w-10 h-10 flex items-center justify-center rounded-sm bg-[var(--color-accent-glow)] border border-[#FFB224]/50 text-[#FFB224] font-mono font-bold shadow-[0_0_10px_var(--color-accent-glow)]">
                     {{ String(predictions.alpha.special).padStart(2, '0') }}
                   </div>
                 </div>
 
-                <div class="space-y-4 pt-4 border-t border-gray-800/50">
+                <div class="space-y-4 pt-4 border-t border-[var(--color-border-subtle)]">
                    <div>
-                     <p class="text-xs text-gray-500 uppercase font-bold mb-1">{{ $t('predictions.math_engine') }}</p>
-                     <p class="text-sm text-gray-300 leading-relaxed">{{ $t(predictions.alpha.justificationKey, predictions.alpha.params || {}) }}</p>
+                     <p class="text-xs text-[var(--color-text-tertiary)] uppercase font-mono tracking-wide mb-2">{{ $t('predictions.math_engine') }}</p>
+                     <p class="text-sm text-[var(--color-text-secondary)] leading-relaxed">{{ $t(predictions.alpha.justificationKey, predictions.alpha.params || {}) }}</p>
                    </div>
                    <div>
-                     <p class="text-xs text-gray-500 uppercase font-bold mb-1">{{ $t('predictions.risk_profile') }}</p>
-                     <p class="text-sm font-medium text-blue-400">{{ $t(predictions.alpha.riskKey) }}</p>
+                     <p class="text-xs text-[var(--color-text-tertiary)] uppercase font-mono tracking-wide mb-2">{{ $t('predictions.risk_profile') }}</p>
+                     <p class="text-sm font-mono font-medium text-[var(--color-text-primary)]">{{ $t(predictions.alpha.riskKey) }}</p>
                    </div>
                 </div>
              </div>
@@ -247,39 +247,39 @@ onUnmounted(() => {
         </div>
 
         <!-- Beta Card -->
-        <div class="bg-[#1a1a24] rounded-2xl border border-gray-800 p-6 sm:p-8 relative overflow-hidden group hover:border-red-500/50 transition-all duration-300 scale-100 lg:scale-105 z-10 shadow-2xl">
-          <div class="absolute inset-0 bg-gradient-to-b from-red-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
-          <div class="absolute top-0 inset-x-0 h-1 bg-gradient-to-r from-red-600 to-orange-500"></div>
+        <div class="bg-[var(--color-surface-1)] rounded-sm border border-[#FFB224]/30 p-6 sm:p-8 relative overflow-hidden group hover:border-[#FFB224]/80 transition-all duration-300 scale-100 lg:scale-105 z-10 shadow-2xl">
+          <div class="absolute inset-0 bg-gradient-to-b from-[#FFB224]/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
+          <div class="absolute top-0 inset-x-0 h-0.5 bg-[#FFB224]"></div>
           
           <div class="relative">
              <div class="flex items-center gap-3 mb-6">
-                <div class="w-10 h-10 rounded-lg bg-red-500/20 flex items-center justify-center text-red-400">
+                <div class="w-10 h-10 rounded-sm bg-[#FFB224]/10 border border-[#FFB224]/30 flex items-center justify-center text-[#FFB224]">
                   <Activity class="w-5 h-5" />
                 </div>
                 <div>
-                  <h3 class="text-xl font-bold text-white">{{ $t('predictions.beta') }}</h3>
-                  <span class="text-xs font-semibold text-red-400 flex items-center gap-1 uppercase tracking-wider">{{ $t('predictions.beta_tag') }}</span>
+                  <h3 class="text-xl font-bold text-[#FFB224]">{{ $t('predictions.beta') }}</h3>
+                  <span class="text-xs font-mono font-semibold text-[#FFB224]/70 flex items-center gap-1 uppercase tracking-wider">{{ $t('predictions.beta_tag') }}</span>
                 </div>
              </div>
 
              <div v-if="predictions?.beta" class="space-y-6">
                 <div class="flex flex-wrap gap-2">
-                  <div v-for="num in predictions.beta.numbers" :key="num" class="w-10 h-10 flex items-center justify-center rounded-full bg-black/40 border border-gray-700 text-white font-bold shadow-inner">
+                  <div v-for="num in predictions.beta.numbers" :key="num" class="w-10 h-10 flex items-center justify-center rounded-sm bg-[var(--color-surface-3)] border border-[#FFB224]/30 text-[var(--color-text-primary)] font-mono font-bold">
                     {{ String(num).padStart(2, '0') }}
                   </div>
-                  <div v-if="predictions.beta.special" class="w-10 h-10 flex items-center justify-center rounded-full bg-red-900/40 border-2 border-red-500 text-red-100 font-bold shadow-[0_0_15px_rgba(239,68,68,0.3)]">
+                  <div v-if="predictions.beta.special" class="w-10 h-10 flex items-center justify-center rounded-sm bg-[var(--color-accent-glow)] border border-[#FFB224]/80 text-[#FFB224] font-mono font-bold shadow-[0_0_15px_var(--color-accent-glow)]">
                     {{ String(predictions.beta.special).padStart(2, '0') }}
                   </div>
                 </div>
 
-                <div class="space-y-4 pt-4 border-t border-gray-800/50">
+                <div class="space-y-4 pt-4 border-t border-[var(--color-border-subtle)]">
                    <div>
-                     <p class="text-xs text-gray-500 uppercase font-bold mb-1">{{ $t('predictions.math_engine') }}</p>
-                     <p class="text-sm text-gray-300 leading-relaxed">{{ $t(predictions.beta.justificationKey, predictions.beta.params || {}) }}</p>
+                     <p class="text-xs text-[#FFB224]/60 uppercase font-mono tracking-wide mb-2">{{ $t('predictions.math_engine') }}</p>
+                     <p class="text-sm text-[var(--color-text-primary)] leading-relaxed">{{ $t(predictions.beta.justificationKey, predictions.beta.params || {}) }}</p>
                    </div>
                    <div>
-                     <p class="text-xs text-gray-500 uppercase font-bold mb-1">{{ $t('predictions.risk_profile') }}</p>
-                     <p class="text-sm font-medium text-red-400">{{ $t(predictions.beta.riskKey) }}</p>
+                     <p class="text-xs text-[#FFB224]/60 uppercase font-mono tracking-wide mb-2">{{ $t('predictions.risk_profile') }}</p>
+                     <p class="text-sm font-mono font-medium text-[#FFB224]">{{ $t(predictions.beta.riskKey) }}</p>
                    </div>
                 </div>
              </div>
@@ -287,39 +287,39 @@ onUnmounted(() => {
         </div>
 
         <!-- Gamma Card -->
-        <div class="bg-[#1a1a24] rounded-2xl border border-gray-800 p-6 sm:p-8 relative overflow-hidden group hover:border-emerald-500/50 transition-all duration-300">
-          <div class="absolute inset-0 bg-gradient-to-b from-emerald-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
-          <div class="absolute top-0 inset-x-0 h-1 bg-gradient-to-r from-emerald-600 to-teal-500"></div>
+        <div class="bg-[var(--color-surface-1)] rounded-sm border border-[var(--color-border-subtle)] p-6 sm:p-8 relative overflow-hidden group hover:border-[#FFB224]/30 transition-all duration-300">
+          <div class="absolute inset-0 bg-gradient-to-b from-[#FFB224]/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
+          <div class="absolute top-0 inset-x-0 h-0.5 bg-[var(--color-border-subtle)] group-hover:bg-[#FFB224] transition-colors"></div>
           
           <div class="relative">
              <div class="flex items-center gap-3 mb-6">
-                <div class="w-10 h-10 rounded-lg bg-emerald-500/20 flex items-center justify-center text-emerald-400">
+                <div class="w-10 h-10 rounded-sm bg-[var(--color-surface-2)] border border-[var(--color-border-subtle)] flex items-center justify-center text-[var(--color-text-secondary)] group-hover:text-[#FFB224] transition-colors">
                   <Zap class="w-5 h-5" />
                 </div>
                 <div>
-                  <h3 class="text-xl font-bold text-white">{{ $t('predictions.gamma') }}</h3>
-                  <span class="text-xs font-semibold text-emerald-400 uppercase tracking-wider">{{ $t('predictions.gamma_tag') }}</span>
+                  <h3 class="text-xl font-bold text-[var(--color-text-primary)] group-hover:text-[#FFB224] transition-colors">{{ $t('predictions.gamma') }}</h3>
+                  <span class="text-xs font-mono font-semibold text-[var(--color-text-tertiary)] uppercase tracking-wider group-hover:text-[#FFB224]/70 transition-colors">{{ $t('predictions.gamma_tag') }}</span>
                 </div>
              </div>
 
              <div v-if="predictions?.gamma" class="space-y-6">
                 <div class="flex flex-wrap gap-2">
-                  <div v-for="num in predictions.gamma.numbers" :key="num" class="w-10 h-10 flex items-center justify-center rounded-full bg-black/40 border border-gray-700 text-white font-bold shadow-inner">
+                  <div v-for="num in predictions.gamma.numbers" :key="num" class="w-10 h-10 flex items-center justify-center rounded-sm bg-[var(--color-surface-3)] border border-[var(--color-border-subtle)] text-[var(--color-text-primary)] font-mono font-bold">
                     {{ String(num).padStart(2, '0') }}
                   </div>
-                  <div v-if="predictions.gamma.special" class="w-10 h-10 flex items-center justify-center rounded-full bg-emerald-900/40 border-2 border-emerald-500 text-emerald-100 font-bold shadow-[0_0_15px_rgba(16,185,129,0.3)]">
+                  <div v-if="predictions.gamma.special" class="w-10 h-10 flex items-center justify-center rounded-sm bg-[var(--color-accent-glow)] border border-[#FFB224]/50 text-[#FFB224] font-mono font-bold shadow-[0_0_10px_var(--color-accent-glow)]">
                     {{ String(predictions.gamma.special).padStart(2, '0') }}
                   </div>
                 </div>
 
-                <div class="space-y-4 pt-4 border-t border-gray-800/50">
+                <div class="space-y-4 pt-4 border-t border-[var(--color-border-subtle)]">
                    <div>
-                     <p class="text-xs text-gray-500 uppercase font-bold mb-1">{{ $t('predictions.math_engine') }}</p>
-                     <p class="text-sm text-gray-300 leading-relaxed">{{ $t(predictions.gamma.justificationKey, predictions.gamma.params || {}) }}</p>
+                     <p class="text-xs text-[var(--color-text-tertiary)] uppercase font-mono tracking-wide mb-2">{{ $t('predictions.math_engine') }}</p>
+                     <p class="text-sm text-[var(--color-text-secondary)] leading-relaxed">{{ $t(predictions.gamma.justificationKey, predictions.gamma.params || {}) }}</p>
                    </div>
                    <div>
-                     <p class="text-xs text-gray-500 uppercase font-bold mb-1">{{ $t('predictions.risk_profile') }}</p>
-                     <p class="text-sm font-medium text-emerald-400">{{ $t(predictions.gamma.riskKey) }}</p>
+                     <p class="text-xs text-[var(--color-text-tertiary)] uppercase font-mono tracking-wide mb-2">{{ $t('predictions.risk_profile') }}</p>
+                     <p class="text-sm font-mono font-medium text-[var(--color-text-primary)]">{{ $t(predictions.gamma.riskKey) }}</p>
                    </div>
                 </div>
              </div>

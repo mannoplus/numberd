@@ -94,84 +94,23 @@ const getGameCountdown = (gameId: string) => {
 </script>
 
 <template>
-  <div class="px-4 sm:px-6 py-6 sm:py-8 max-w-7xl mx-auto space-y-8">
+  <div class="px-4 sm:px-6 py-6 sm:py-8 max-w-7xl mx-auto space-y-10">
     <header class="space-y-2">
-      <h1 class="text-3xl sm:text-4xl font-extrabold tracking-tight text-white">{{ $t('dashboard.title') }}</h1>
-      <p class="text-gray-400">{{ $t('dashboard.subtitle') }}</p>
+      <h1 class="text-3xl sm:text-4xl font-extrabold tracking-tight text-[var(--color-text-primary)]">{{ $t('dashboard.title') }}</h1>
+      <p class="text-[var(--color-text-secondary)] font-mono text-sm uppercase">{{ $t('dashboard.subtitle') }}</p>
     </header>
-
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-      <div v-for="game in gameTypes" :key="game.id" class="bg-[#1a1a24] rounded-2xl border border-gray-800 overflow-hidden hover:border-violet-500/50 transition-colors duration-300 relative group">
-        <div class="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-violet-600 to-fuchsia-500 opacity-75"></div>
-        <div class="p-6">
-          <div class="flex justify-between items-start mb-4">
-            <h2 class="text-xl font-bold text-white">{{ $t('games.' + game.id) }}</h2>
-            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-violet-600/20 text-violet-400">
-              {{ $t('common.live') }}
-            </span>
-          </div>
-          
-          <div class="space-y-4">
-            <div class="flex justify-between text-sm">
-              <span class="text-gray-400">{{ $t('dashboard.number_pool') }}</span>
-              <span class="text-white font-medium">{{ game.pool }}</span>
-            </div>
-            <div class="flex justify-between text-sm">
-              <span class="text-gray-400">{{ $t('dashboard.draw_count') }}</span>
-              <span class="text-white font-medium">{{ game.draws }} <span v-if="game.hasSpecial">{{ $t('dashboard.plus_special') }}</span></span>
-            </div>
-            
-            <div class="pt-4 mt-4 border-t border-gray-800">
-              <p class="text-xs text-gray-500 mb-2 uppercase tracking-wide font-semibold">{{ $t('dashboard.next_draw_countdown') }}</p>
-              <div class="text-2xl font-mono text-fuchsia-400">
-                {{ getGameCountdown(game.id) }}
-              </div>
-            </div>
-          </div>
-        </div>
-        
-        <div class="bg-black/20 p-4 border-t border-gray-800 group-hover:bg-violet-900/10 transition-colors min-h-[100px]">
-          <div v-if="game.latestDraw">
-            <div class="flex justify-between items-center mb-3">
-              <span class="text-sm text-gray-400">{{ $t('dashboard.latest_draw') }} <span class="text-gray-500 text-xs">({{ formatLocalDate(game.latestDraw.date, $i18n.locale) }})</span></span>
-              <router-link to="/analysis" class="inline-flex min-h-11 items-center rounded-lg px-2 text-xs font-medium text-fuchsia-400 transition-colors hover:bg-white/5 hover:text-fuchsia-300">
-                {{ $t('dashboard.view_analysis') }} &rarr;
-              </router-link>
-            </div>
-            <div class="flex flex-wrap gap-2">
-              <div 
-                v-for="num in game.latestDraw.numbers" 
-                :key="num"
-                class="w-8 h-8 rounded-full bg-[#2a2a35] border border-gray-700 flex items-center justify-center text-sm font-bold shadow-inner text-gray-200"
-              >
-                {{ String(num).padStart(2, '0') }}
-              </div>
-              <div 
-                v-if="game.hasSpecial && game.latestDraw.special"
-                class="w-8 h-8 rounded-full border flex items-center justify-center text-sm font-bold shadow-[0_0_10px_rgba(217,70,239,0.3)] bg-gradient-to-br from-fuchsia-600 to-violet-700 border-fuchsia-500 text-white"
-              >
-                {{ String(game.latestDraw.special).padStart(2, '0') }}
-              </div>
-            </div>
-          </div>
-          <div v-else class="flex h-full items-center justify-center">
-            <span class="text-gray-600 text-sm animate-pulse">{{ $t('dashboard.fetching_live') }}</span>
-          </div>
-        </div>
-      </div>
-    </div>
 
     <!-- YouTube Live Stream Embed -->
     <div class="space-y-4">
       <div class="flex flex-wrap items-center gap-3">
-        <div class="bg-red-600/90 backdrop-blur-sm text-white text-xs font-bold px-3 py-1.5 rounded-full flex items-center gap-2 shadow-[0_0_15px_rgba(220,38,38,0.5)] border border-red-500/50 w-max">
-          <div class="w-2 h-2 bg-white rounded-full animate-pulse"></div>
+        <div class="bg-[var(--color-hot)]/10 text-[var(--color-hot)] text-xs font-mono font-bold px-3 py-1.5 rounded-sm flex items-center gap-2 border border-[var(--color-hot)]/30 w-max tracking-widest uppercase">
+          <div class="w-2 h-2 bg-[var(--color-hot)] rounded-full animate-pulse shadow-[0_0_8px_var(--color-hot)]"></div>
           {{ $t('dashboard.live_event') }}
         </div>
-        <h2 class="text-xl font-bold text-white tracking-tight">{{ $t('dashboard.official_broadcast') }}</h2>
+        <h2 class="text-xl font-bold text-[var(--color-text-primary)] tracking-tight">{{ $t('dashboard.official_broadcast') }}</h2>
       </div>
 
-      <div class="w-full relative rounded-xl sm:rounded-2xl overflow-hidden border border-gray-800 shadow-2xl bg-[#1a1a24] group">
+      <div class="w-full relative rounded-sm overflow-hidden border border-[var(--color-border-subtle)] bg-[var(--color-surface-1)]">
         <div class="aspect-video w-full">
           <iframe 
             class="w-full h-full" 
@@ -184,6 +123,68 @@ const getGameCountdown = (gameId: string) => {
             webkitallowfullscreen
             mozallowfullscreen>
           </iframe>
+        </div>
+      </div>
+    </div>
+
+    <!-- Games Grid -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div v-for="game in gameTypes" :key="game.id" class="bg-[var(--color-surface-1)] rounded-sm border border-[var(--color-border-subtle)] overflow-hidden hover:border-[#FFB224]/50 transition-colors duration-300 relative group">
+        <div class="absolute inset-x-0 top-0 h-0.5 bg-[#FFB224] opacity-50 group-hover:opacity-100 transition-opacity"></div>
+        <div class="p-6">
+          <div class="flex justify-between items-start mb-4">
+            <h2 class="text-xl font-bold text-[var(--color-text-primary)]">{{ $t('games.' + game.id) }}</h2>
+            <span class="inline-flex items-center px-2 py-0.5 rounded-sm text-xs font-mono font-medium bg-[#FFB224]/10 text-[#FFB224] border border-[#FFB224]/20 uppercase">
+              {{ $t('common.live') }}
+            </span>
+          </div>
+          
+          <div class="space-y-4">
+            <div class="flex justify-between text-sm font-mono border-b border-[var(--color-border-subtle)] pb-2">
+              <span class="text-[var(--color-text-tertiary)] uppercase">{{ $t('dashboard.number_pool') }}</span>
+              <span class="text-[var(--color-text-primary)]">{{ game.pool }}</span>
+            </div>
+            <div class="flex justify-between text-sm font-mono border-b border-[var(--color-border-subtle)] pb-2">
+              <span class="text-[var(--color-text-tertiary)] uppercase">{{ $t('dashboard.draw_count') }}</span>
+              <span class="text-[var(--color-text-primary)]">{{ game.draws }} <span v-if="game.hasSpecial">{{ $t('dashboard.plus_special') }}</span></span>
+            </div>
+            
+            <div class="pt-4">
+              <p class="text-xs text-[var(--color-text-tertiary)] mb-2 uppercase tracking-wide font-mono">{{ $t('dashboard.next_draw_countdown') }}</p>
+              <div class="text-2xl font-mono text-[#FFB224]">
+                {{ getGameCountdown(game.id) }}
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <div class="bg-[var(--color-surface-2)] p-4 border-t border-[var(--color-border-subtle)] group-hover:bg-[var(--color-accent-glow)]/10 transition-colors min-h-[100px]">
+          <div v-if="game.latestDraw">
+            <div class="flex justify-between items-center mb-4">
+              <span class="text-sm text-[var(--color-text-secondary)] font-mono uppercase">{{ $t('dashboard.latest_draw') }} <span class="text-[var(--color-text-tertiary)] text-xs ml-1">{{ formatLocalDate(game.latestDraw.date, $i18n.locale) }}</span></span>
+              <router-link to="/analysis" class="inline-flex min-h-8 items-center rounded-sm px-2 text-xs font-mono font-bold text-[#FFB224] transition-colors hover:bg-white/5 uppercase border border-transparent hover:border-[#FFB224]/30">
+                {{ $t('dashboard.view_analysis') }} &rarr;
+              </router-link>
+            </div>
+            <div class="flex flex-wrap gap-2">
+              <div 
+                v-for="num in game.latestDraw.numbers" 
+                :key="num"
+                class="w-9 h-9 rounded-sm bg-[var(--color-surface-3)] border border-[var(--color-border-subtle)] flex items-center justify-center text-sm font-mono font-bold text-[var(--color-text-primary)]"
+              >
+                {{ String(num).padStart(2, '0') }}
+              </div>
+              <div 
+                v-if="game.hasSpecial && game.latestDraw.special"
+                class="w-9 h-9 rounded-sm border flex items-center justify-center text-sm font-mono font-bold shadow-[0_0_10px_var(--color-accent-glow)] bg-[#FFB224]/10 border-[#FFB224]/50 text-[#FFB224]"
+              >
+                {{ String(game.latestDraw.special).padStart(2, '0') }}
+              </div>
+            </div>
+          </div>
+          <div v-else class="flex h-full items-center justify-center">
+            <span class="text-[var(--color-text-tertiary)] text-sm font-mono uppercase animate-pulse">{{ $t('dashboard.fetching_live') }}</span>
+          </div>
         </div>
       </div>
     </div>

@@ -108,9 +108,9 @@ const chartData = computed(() => {
     datasets: [
       {
         label: 'Draw Frequency',
-        backgroundColor: '#7c3aed',
+        backgroundColor: '#FFB224',
         data: sorted.map(d => d.count),
-        borderRadius: 4
+        borderRadius: 2
       }
     ]
   }
@@ -123,15 +123,15 @@ const chartOptions = {
     y: {
       beginAtZero: true,
       grid: { color: 'rgba(255,255,255,0.05)' },
-      ticks: { color: '#9ca3af' }
+      ticks: { color: '#9ca3af', font: { family: "'JetBrains Mono', monospace" } }
     },
     x: {
       grid: { display: false },
-      ticks: { color: '#9ca3af' }
+      ticks: { color: '#9ca3af', font: { family: "'JetBrains Mono', monospace" } }
     }
   },
   plugins: {
-    legend: { labels: { color: '#fff' } }
+    legend: { labels: { color: '#fff', font: { family: "'Inter', sans-serif" } } }
   }
 }
 
@@ -145,20 +145,20 @@ const maxGap = computed(() => [...analysisData.value].sort((a,b) => b.gap - a.ga
   <div class="px-4 sm:px-6 py-6 sm:py-8 max-w-7xl mx-auto space-y-8 pb-32">
     <header class="space-y-4">
       <div>
-        <h1 class="text-3xl sm:text-4xl font-extrabold tracking-tight text-white mb-2">{{ $t('analysis.title') }}</h1>
-        <p class="text-gray-400">{{ $t('analysis.subtitle') }}</p>
+        <h1 class="text-3xl sm:text-4xl font-extrabold tracking-tight text-[var(--color-text-primary)] mb-2">{{ $t('analysis.title') }}</h1>
+        <p class="text-[var(--color-text-secondary)] font-mono text-sm uppercase tracking-wide">{{ $t('analysis.subtitle') }}</p>
       </div>
 
-      <div class="flex w-full flex-wrap items-center gap-2 rounded-xl border border-gray-800 bg-[#1a1a24] p-2 sm:w-auto sm:gap-4">
+      <div class="flex w-full flex-wrap items-center gap-2 rounded-sm border border-[var(--color-border-subtle)] bg-[var(--color-surface-1)] p-2 sm:w-auto sm:gap-4">
         <button 
           v-for="game in games" 
           :key="game.id"
           @click="selectedGame = game.id"
           :class="[
             selectedGame === game.id 
-              ? 'bg-gradient-to-r from-violet-600 to-fuchsia-500 text-white shadow-lg' 
-              : 'text-gray-400 hover:text-white hover:bg-white/5',
-            'min-h-11 flex-1 px-3 py-2.5 text-sm font-medium rounded-lg transition-all duration-300 sm:flex-none sm:px-6'
+              ? 'bg-[#FFB224] text-black shadow-sm font-bold' 
+              : 'text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)] hover:bg-[var(--color-surface-2)]',
+            'min-h-11 flex-1 px-3 py-2.5 text-sm font-mono uppercase tracking-wide rounded-sm transition-all duration-300 sm:flex-none sm:px-6 border border-transparent'
           ]"
         >
           {{ $t('games.' + game.id) }}
@@ -167,61 +167,61 @@ const maxGap = computed(() => [...analysisData.value].sort((a,b) => b.gap - a.ga
     </header>
 
     <div v-if="isLoading" class="flex items-center justify-center p-20">
-      <div class="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-fuchsia-500"></div>
+      <div class="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-[#FFB224]"></div>
     </div>
 
-    <div v-else-if="draws.length === 0" class="bg-[#1a1a24] rounded-2xl border border-gray-800 p-8 text-center text-gray-400">
+    <div v-else-if="draws.length === 0" class="bg-[var(--color-surface-1)] rounded-sm border border-[var(--color-border-subtle)] p-8 text-center text-[var(--color-text-secondary)] font-mono uppercase">
       {{ $t('analysis.no_data') }}
     </div>
 
     <div v-else class="space-y-8 animate-[fadeIn_0.5s_ease-out]">
       <!-- Summary Cards -->
       <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div class="bg-gradient-to-br from-red-500/10 to-transparent border border-red-500/20 rounded-2xl p-6 relative overflow-hidden group">
-          <div class="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-red-600 to-orange-500"></div>
-          <h3 class="text-sm font-semibold text-red-400 uppercase tracking-wider mb-4">{{ $t('analysis.hot_numbers') }}</h3>
+        <div class="bg-[var(--color-surface-1)] border border-[var(--color-border-subtle)] rounded-sm p-6 relative overflow-hidden group">
+          <div class="absolute inset-x-0 top-0 h-0.5 bg-[var(--color-hot)]"></div>
+          <h3 class="text-sm font-mono font-semibold text-[var(--color-hot)] uppercase tracking-widest mb-4">{{ $t('analysis.hot_numbers') }}</h3>
           <div class="flex flex-wrap gap-2">
             <div v-for="st in hotNumbers" :key="st.number" class="flex flex-col items-center">
-              <div class="w-10 h-10 rounded-full bg-red-500/10 border border-red-500/30 flex items-center justify-center font-bold text-red-200">
+              <div class="w-11 h-11 rounded-sm bg-[var(--color-surface-2)] border border-[var(--color-hot)]/30 flex items-center justify-center font-mono font-bold text-[var(--color-text-primary)] shadow-[inset_0_0_8px_rgba(255,107,107,0.1)]">
                 {{ String(st.number).padStart(2, '0') }}
               </div>
-              <span class="text-xs text-gray-500 mt-1">{{ st.count }}{{ $t('analysis.times') }}</span>
+              <span class="text-xs text-[var(--color-text-tertiary)] mt-2 font-mono uppercase tracking-wider">{{ st.count }}{{ $t('analysis.times') }}</span>
             </div>
           </div>
         </div>
 
-        <div class="bg-gradient-to-br from-blue-500/10 to-transparent border border-blue-500/20 rounded-2xl p-6 relative overflow-hidden group">
-          <div class="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-blue-400 to-cyan-400"></div>
-          <h3 class="text-sm font-semibold text-blue-400 uppercase tracking-wider mb-4">{{ $t('analysis.cold_numbers') }}</h3>
+        <div class="bg-[var(--color-surface-1)] border border-[var(--color-border-subtle)] rounded-sm p-6 relative overflow-hidden group">
+          <div class="absolute inset-x-0 top-0 h-0.5 bg-[var(--color-cold)]"></div>
+          <h3 class="text-sm font-mono font-semibold text-[var(--color-cold)] uppercase tracking-widest mb-4">{{ $t('analysis.cold_numbers') }}</h3>
           <div class="flex flex-wrap gap-2">
             <div v-for="st in coldNumbers" :key="st.number" class="flex flex-col items-center">
-              <div class="w-10 h-10 rounded-full bg-blue-500/10 border border-blue-500/30 flex items-center justify-center font-bold text-blue-200">
+              <div class="w-11 h-11 rounded-sm bg-[var(--color-surface-2)] border border-[var(--color-cold)]/30 flex items-center justify-center font-mono font-bold text-[var(--color-text-primary)] shadow-[inset_0_0_8px_rgba(77,171,247,0.1)]">
                 {{ String(st.number).padStart(2, '0') }}
               </div>
-              <span class="text-xs text-gray-500 mt-1">{{ st.count }}{{ $t('analysis.times') }}</span>
+              <span class="text-xs text-[var(--color-text-tertiary)] mt-2 font-mono uppercase tracking-wider">{{ st.count }}{{ $t('analysis.times') }}</span>
             </div>
           </div>
         </div>
 
-        <div class="bg-gradient-to-br from-amber-500/10 to-transparent border border-amber-500/20 rounded-2xl p-6 relative overflow-hidden group">
-          <div class="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-amber-400 to-yellow-400"></div>
-          <h3 class="text-sm font-semibold text-amber-400 uppercase tracking-wider mb-4">{{ $t('analysis.overdue') }}</h3>
+        <div class="bg-[var(--color-surface-1)] border border-[var(--color-border-subtle)] rounded-sm p-6 relative overflow-hidden group">
+          <div class="absolute inset-x-0 top-0 h-0.5 bg-[#FFB224]"></div>
+          <h3 class="text-sm font-mono font-semibold text-[#FFB224] uppercase tracking-widest mb-4">{{ $t('analysis.overdue') }}</h3>
           <div class="flex flex-wrap gap-2">
             <div v-for="st in maxGap" :key="st.number" class="flex flex-col items-center">
-              <div class="w-10 h-10 rounded-full bg-amber-500/10 border border-amber-500/30 flex items-center justify-center font-bold text-amber-200">
+              <div class="w-11 h-11 rounded-sm bg-[var(--color-surface-2)] border border-[#FFB224]/30 flex items-center justify-center font-mono font-bold text-[var(--color-text-primary)] shadow-[inset_0_0_8px_rgba(255,178,36,0.1)]">
                 {{ String(st.number).padStart(2, '0') }}
               </div>
-              <span class="text-xs text-amber-500/80 mt-1">{{ st.gap }}{{ $t('analysis.days_ago') }}</span>
+              <span class="text-xs text-[#FFB224]/80 mt-2 font-mono uppercase tracking-wider">{{ st.gap }}{{ $t('analysis.days_ago') }}</span>
             </div>
           </div>
         </div>
       </div>
 
       <!-- Chart View -->
-      <div class="bg-[#1a1a24] rounded-2xl border border-gray-800 p-6 shadow-xl">
+      <div class="bg-[var(--color-surface-1)] rounded-sm border border-[var(--color-border-subtle)] p-6 shadow-xl">
         <div class="flex justify-between items-center mb-6">
-          <h2 class="text-xl font-bold text-white">{{ $t('analysis.frequency_dist') }}</h2>
-          <span class="text-sm text-gray-500">{{ $t('analysis.based_on', { count: draws.length }) }}</span>
+          <h2 class="text-xl font-bold text-[var(--color-text-primary)]">{{ $t('analysis.frequency_dist') }}</h2>
+          <span class="text-sm text-[var(--color-text-secondary)] font-mono uppercase tracking-wide">{{ $t('analysis.based_on', { count: draws.length }) }}</span>
         </div>
         <div class="h-80 w-full relative">
           <Bar :data="chartData" :options="chartOptions" />
@@ -234,7 +234,7 @@ const maxGap = computed(() => [...analysisData.value].sort((a,b) => b.gap - a.ga
 
 <style>
 @keyframes fadeIn {
-  from { opacity: 0; transform: translateY(10px); }
+  from { opacity: 0; transform: translateY(4px); }
   to { opacity: 1; transform: translateY(0); }
 }
 </style>

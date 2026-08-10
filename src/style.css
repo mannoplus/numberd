@@ -1,22 +1,70 @@
 @import "tailwindcss";
 
 @theme {
-  --color-brand-bg: #0f0f14;
-  --color-brand-violet: #7c3aed; /* tailwind violet-600 */
-  --color-brand-fuchsia: #d946ef; /* tailwind fuchsia-500 */
+  --color-brand-bg: #000000;
+  --color-surface-1: #050505;
+  --color-surface-2: #0A0A0A;
+  --color-surface-3: #0F0F0F;
+  --color-border-subtle: rgba(255, 255, 255, 0.06);
+  --color-border-focus: rgba(255, 255, 255, 0.15);
+  
+  --color-text-primary: #F2F2F2;
+  --color-text-secondary: #A0A0A0;
+  --color-text-tertiary: #5C5C5C;
+  
+  --color-accent-gold: #FFB224;
+  --color-accent-glow: rgba(255, 178, 36, 0.3);
+  
+  --color-hot: #FF6B6B;
+  --color-cold: #4DABF7;
+
+  --font-mono: 'JetBrains Mono', 'IBM Plex Mono', monospace;
+  --font-sans: 'Inter', 'Noto Sans TC', sans-serif;
 }
 
 @layer base {
   html {
     background-color: var(--color-brand-bg);
+    color: var(--color-text-primary);
+    font-family: var(--font-sans);
   }
 
   body {
     background-color: var(--color-brand-bg);
-    color: #f3f4f6; /* gray-100 */
+    color: var(--color-text-primary);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  /* Monospace mapping for all numbers */
+  .font-mono {
+    font-family: var(--font-mono);
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* Selection style */
+  ::selection {
+    background-color: var(--color-accent-glow);
+    color: var(--color-accent-gold);
   }
 
   button, a, input, select {
     touch-action: manipulation;
   }
+}
+
+/* Custom scrollbars */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: var(--color-brand-bg); 
+}
+::-webkit-scrollbar-thumb {
+  background: var(--color-surface-3); 
+  border-radius: 0;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-text-tertiary); 
 }

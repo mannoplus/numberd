@@ -1,0 +1,4 @@
+- [x] Update `AndroidManifest.xml` to use standard icon names
+- [x] Configure `ic_launcher.xml` with vector logo
+- [x] Configure `ic_launcher_round.xml` with vector logo
+- [x] Verify build and deployment

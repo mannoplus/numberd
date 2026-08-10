@@ -66,20 +66,20 @@ onUnmounted(() => {
   <div class="px-4 sm:px-6 py-6 sm:py-8 max-w-7xl mx-auto space-y-8 pb-32">
     <header class="space-y-4">
       <div>
-        <h1 class="text-3xl sm:text-4xl font-extrabold tracking-tight text-white mb-2">{{ $t('history.title') }}</h1>
-        <p class="text-gray-400">{{ $t('history.subtitle') }}</p>
+        <h1 class="text-3xl sm:text-4xl font-extrabold tracking-tight text-[var(--color-text-primary)] mb-2">{{ $t('history.title') }}</h1>
+        <p class="text-[var(--color-text-secondary)] font-mono text-sm uppercase tracking-wide">{{ $t('history.subtitle') }}</p>
       </div>
 
-      <div class="flex w-full flex-wrap items-center gap-2 rounded-xl border border-gray-800 bg-[#1a1a24] p-2 sm:w-auto sm:gap-4">
+      <div class="flex w-full flex-wrap items-center gap-2 rounded-sm border border-[var(--color-border-subtle)] bg-[var(--color-surface-1)] p-2 sm:w-auto sm:gap-4">
         <button 
           v-for="game in games" 
           :key="game.id"
           @click="selectedGame = game.id"
           :class="[
             selectedGame === game.id 
-              ? 'bg-gradient-to-r from-violet-600 to-fuchsia-500 text-white shadow-lg' 
-              : 'text-gray-400 hover:text-white hover:bg-white/5',
-            'min-h-11 flex-1 px-3 py-2.5 text-sm font-medium rounded-lg transition-all duration-300 sm:flex-none sm:px-6'
+              ? 'bg-[#FFB224] text-black shadow-sm font-bold' 
+              : 'text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)] hover:bg-[var(--color-surface-2)]',
+            'min-h-11 flex-1 px-3 py-2.5 text-sm font-mono uppercase tracking-wide rounded-sm transition-all duration-300 sm:flex-none sm:px-6 border border-transparent'
           ]"
         >
           {{ $t('games.' + game.id) }}
@@ -88,44 +88,44 @@ onUnmounted(() => {
     </header>
 
     <div v-if="isLoading" class="flex items-center justify-center p-20">
-      <div class="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-fuchsia-500"></div>
+      <div class="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-[#FFB224]"></div>
     </div>
     
-    <div v-else-if="history.length === 0" class="bg-[#1a1a24] rounded-2xl border border-gray-800 p-8 text-center text-gray-400">
+    <div v-else-if="history.length === 0" class="bg-[var(--color-surface-1)] rounded-sm border border-[var(--color-border-subtle)] p-8 text-center text-[var(--color-text-secondary)] font-mono uppercase">
       {{ $t('history.no_data') }}
     </div>
 
-    <div v-else class="bg-[#1a1a24] rounded-2xl border border-gray-800 overflow-hidden shadow-xl animate-[fadeIn_0.5s_ease-out]">
+    <div v-else class="bg-[var(--color-surface-1)] rounded-sm border border-[var(--color-border-subtle)] overflow-hidden shadow-xl animate-[fadeIn_0.5s_ease-out]">
       <div class="overflow-x-auto">
         <table class="w-full text-left border-collapse">
           <thead>
-            <tr class="bg-black/40 border-b border-gray-800 text-gray-400 text-sm uppercase tracking-wider">
+            <tr class="bg-[var(--color-surface-2)] border-b border-[var(--color-border-subtle)] text-[var(--color-text-tertiary)] font-mono text-xs uppercase tracking-wider">
               <th class="p-4 font-semibold whitespace-nowrap">{{ $t('history.id') }}</th>
               <th class="p-4 font-semibold whitespace-nowrap">{{ $t('history.date') }}</th>
               <th class="p-4 font-semibold">{{ $t('history.winning_numbers') }}</th>
               <th class="p-4 font-semibold" v-if="games.find(g => g.id === selectedGame)?.hasSpecial">{{ $t('history.special_number') }}</th>
             </tr>
           </thead>
-          <tbody class="divide-y divide-gray-800/50">
-            <tr v-for="draw in history" :key="draw.draw_id" class="hover:bg-white/5 transition-colors group">
-              <td class="p-4 text-gray-400 font-mono text-sm whitespace-nowrap">{{ draw.draw_id }}</td>
-              <td class="p-4 text-gray-300 whitespace-nowrap">{{ formatLocalDate(draw.draw_date, $i18n.locale) }}</td>
+          <tbody class="divide-y divide-[var(--color-border-subtle)]">
+            <tr v-for="draw in history" :key="draw.draw_id" class="hover:bg-[var(--color-surface-2)] transition-colors group">
+              <td class="p-4 text-[var(--color-text-secondary)] font-mono text-sm whitespace-nowrap">{{ draw.draw_id }}</td>
+              <td class="p-4 text-[var(--color-text-secondary)] font-mono text-sm whitespace-nowrap">{{ formatLocalDate(draw.draw_date, $i18n.locale) }}</td>
               <td class="p-4">
                 <div class="flex flex-wrap gap-2">
                   <div 
                     v-for="num in draw.numbers" 
                     :key="num"
-                    class="w-8 h-8 rounded-full bg-[#2a2a35] border border-gray-700 flex items-center justify-center text-sm font-bold shadow-inner text-gray-200 group-hover:border-violet-500/50 transition-colors"
+                    class="w-8 h-8 rounded-sm bg-[var(--color-surface-3)] border border-[var(--color-border-subtle)] flex items-center justify-center font-mono text-sm font-bold text-[var(--color-text-primary)] group-hover:border-[#FFB224]/30 transition-colors"
                   >
                     {{ String(num).padStart(2, '0') }}
                   </div>
                 </div>
               </td>
               <td class="p-4" v-if="games.find(g => g.id === selectedGame)?.hasSpecial">
-                <div v-if="draw.special_number" class="w-8 h-8 rounded-full border flex items-center justify-center text-sm font-bold shadow-[0_0_10px_rgba(217,70,239,0.2)] bg-gradient-to-br from-fuchsia-600/80 to-violet-700/80 border-fuchsia-500 text-white">
+                <div v-if="draw.special_number" class="w-8 h-8 rounded-sm bg-[var(--color-accent-glow)] border border-[#FFB224]/50 flex items-center justify-center font-mono text-sm font-bold shadow-[0_0_10px_var(--color-accent-glow)] text-[#FFB224]">
                   {{ String(draw.special_number).padStart(2, '0') }}
                 </div>
-                <span v-else class="text-gray-600">-</span>
+                <span v-else class="text-[var(--color-text-tertiary)]">-</span>
               </td>
             </tr>
           </tbody>
