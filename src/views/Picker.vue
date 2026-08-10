@@ -64,6 +64,11 @@ const resetGame = (gameId: string) => {
   selectedNumbers.value = []
   generatedTickets.value = []
 }
+
+const clearSelection = () => {
+  selectedNumbers.value = []
+  generatedTickets.value = []
+}
 </script>
 
 <template>
@@ -124,8 +129,17 @@ const resetGame = (gameId: string) => {
               {{ String(n).padStart(2, '0') }}
             </button>
           </div>
-          <div class="mt-4 text-sm font-mono font-medium" :class="selectedNumbers.length >= 12 && selectedNumbers.length <= 16 ? 'text-[#FFB224]' : 'text-[var(--color-text-secondary)]'">
-            {{ $t('picker.step1_status', { selected: selectedNumbers.length }) }}
+          <div class="mt-4 flex items-center justify-between">
+            <div class="text-sm font-mono font-medium" :class="selectedNumbers.length >= 12 && selectedNumbers.length <= 16 ? 'text-[#FFB224]' : 'text-[var(--color-text-secondary)]'">
+              {{ $t('picker.step1_status', { selected: selectedNumbers.length }) }}
+            </div>
+            <button 
+              v-if="selectedNumbers.length > 0" 
+              @click="clearSelection" 
+              class="px-3 py-1.5 border border-[var(--color-border-subtle)] hover:border-red-500/50 hover:bg-[var(--color-surface-2)] text-[var(--color-text-secondary)] hover:text-red-400 text-xs font-mono uppercase tracking-wide rounded-sm transition-colors"
+            >
+              Clear All
+            </button>
           </div>
         </div>
       </div>
