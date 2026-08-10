@@ -44,7 +44,7 @@ class CombinationsScreen extends ConsumerWidget {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text(
-                    '${comboState.selectedNumbers.length} SELECTED',
+                    'STEP ${comboState.currentStep} OF 3',
                     style: const TextStyle(
                       color: AppColors.textSecondary,
                       fontFamily: 'Roboto Mono',
@@ -76,102 +76,294 @@ class CombinationsScreen extends ConsumerWidget {
             ),
           ),
 
-          // Number Grid
-          SliverPadding(
-            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-            sliver: SliverGrid(
-              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 7,
-                mainAxisSpacing: 8,
-                crossAxisSpacing: 8,
-              ),
-              delegate: SliverChildBuilderDelegate(
-                (context, index) {
-                  final num = index + 1;
-                  final isSelected = comboState.selectedNumbers.contains(num);
-                  return GestureDetector(
-                    onTap: () => ref.read(combinationsProvider.notifier).toggleNumber(num),
-                    child: NumberBall(
-                      number: num,
-                      size: 40,
-                      variant: isSelected ? NumberBallVariant.normal : NumberBallVariant.dimmed,
-                    ),
-                  );
-                },
-                childCount: schema.pool,
-              ),
-            ),
-          ),
-
-          // Generate Button
-          SliverToBoxAdapter(
-            child: Padding(
-              padding: const EdgeInsets.all(20),
-              child: ElevatedButton(
-                onPressed: comboState.selectedNumbers.length >= schema.count
-                    ? () => ref.read(combinationsProvider.notifier).generate(schema.count)
-                    : null,
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: AppColors.primary,
-                  disabledBackgroundColor: AppColors.primary.withAlpha(50),
-                  padding: const EdgeInsets.symmetric(vertical: 16),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-                ),
-                child: Text(
-                  'GENERATE TICKETS',
-                  style: TextStyle(
-                    color: comboState.selectedNumbers.length >= schema.count ? Colors.black : Colors.white54,
-                    fontFamily: 'Roboto Mono',
-                    fontWeight: FontWeight.bold,
-                    letterSpacing: 1.5,
-                  ),
-                ),
-              ),
-            ),
-          ),
-
-          // Results
-          if (comboState.generatedTickets.isNotEmpty)
-            SliverToBoxAdapter(
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 20),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      '${comboState.generatedTickets.length} TICKETS GENERATED',
-                      style: const TextStyle(
-                        color: AppColors.textMuted,
-                        fontFamily: 'Roboto Mono',
-                        fontSize: 12,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    const SizedBox(height: 12),
-                    ...comboState.generatedTickets.map((ticket) {
-                      return Container(
-                        margin: const EdgeInsets.only(bottom: 12),
-                        padding: const EdgeInsets.all(12),
-                        decoration: BoxDecoration(
-                          color: AppColors.surface,
-                          border: Border.all(color: AppColors.border),
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        child: Wrap(
-                          spacing: 8,
-                          runSpacing: 8,
-                          children: ticket.map((n) => NumberBall(number: n, size: 32)).toList(),
-                        ),
-                      );
-                    }),
-                    const SizedBox(height: 40),
-                  ],
-                ),
-              ),
-            ),
+          // Step Content
+          if (comboState.currentStep == 1) ..._buildStep1(ref, comboState, schema),
+          if (comboState.currentStep == 2) ..._buildStep2(ref, comboState),
+          if (comboState.currentStep == 3) ..._buildStep3(ref, comboState, schema),
         ],
       ),
     );
+  }
+
+  List<Widget> _buildStep1(WidgetRef ref, CombinationsState state, dynamic schema) {
+    final count = state.selectedNumbers.length;
+    final isValid = count >= 12 && count <= 16;
+    
+    return [
+      SliverToBoxAdapter(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+          child: Text(
+            'Select between 12 and 16 numbers ($count/16 selected)',
+            style: TextStyle(
+              color: isValid ? AppColors.primary : AppColors.textMuted,
+              fontFamily: 'Roboto Mono',
+              fontSize: 14,
+            ),
+          ),
+        ),
+      ),
+      SliverPadding(
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+        sliver: SliverGrid(
+          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: 7,
+            mainAxisSpacing: 8,
+            crossAxisSpacing: 8,
+          ),
+          delegate: SliverChildBuilderDelegate(
+            (context, index) {
+              final num = index + 1;
+              final isSelected = state.selectedNumbers.contains(num);
+              return GestureDetector(
+                onTap: () => ref.read(combinationsProvider.notifier).toggleNumber(num),
+                child: NumberBall(
+                  number: num,
+                  size: 40,
+                  variant: isSelected ? NumberBallVariant.normal : NumberBallVariant.dimmed,
+                ),
+              );
+            },
+            childCount: schema.pool,
+          ),
+        ),
+      ),
+      SliverToBoxAdapter(
+        child: Padding(
+          padding: const EdgeInsets.all(20),
+          child: ElevatedButton(
+            onPressed: isValid
+                ? () => ref.read(combinationsProvider.notifier).nextStep()
+                : null,
+            style: ElevatedButton.styleFrom(
+              backgroundColor: AppColors.primary,
+              disabledBackgroundColor: AppColors.primary.withAlpha(50),
+              padding: const EdgeInsets.symmetric(vertical: 16),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+            ),
+            child: Text(
+              'CONTINUE',
+              style: TextStyle(
+                color: isValid ? Colors.black : Colors.white54,
+                fontFamily: 'Roboto Mono',
+                fontWeight: FontWeight.bold,
+                letterSpacing: 1.5,
+              ),
+            ),
+          ),
+        ),
+      ),
+    ];
+  }
+
+  List<Widget> _buildStep2(WidgetRef ref, CombinationsState state) {
+    final numbers = state.selectedNumbers.toList()..sort();
+    return [
+      SliverToBoxAdapter(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+          child: const Text(
+            'Confirm your selected numbers',
+            style: TextStyle(
+              color: AppColors.textPrimary,
+              fontFamily: 'Roboto Mono',
+              fontSize: 14,
+            ),
+          ),
+        ),
+      ),
+      SliverToBoxAdapter(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+          child: Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: AppColors.surface,
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: AppColors.border),
+            ),
+            child: Wrap(
+              spacing: 8,
+              runSpacing: 8,
+              children: numbers.map((n) => NumberBall(number: n, size: 36)).toList(),
+            ),
+          ),
+        ),
+      ),
+      SliverToBoxAdapter(
+        child: Padding(
+          padding: const EdgeInsets.all(20),
+          child: Row(
+            children: [
+              Expanded(
+                child: OutlinedButton(
+                  onPressed: () => ref.read(combinationsProvider.notifier).previousStep(),
+                  style: OutlinedButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    side: const BorderSide(color: AppColors.border),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                  ),
+                  child: const Text(
+                    'BACK',
+                    style: TextStyle(color: AppColors.textPrimary, fontFamily: 'Roboto Mono'),
+                  ),
+                ),
+              ),
+              const SizedBox(width: 16),
+              Expanded(
+                flex: 2,
+                child: ElevatedButton(
+                  onPressed: () => ref.read(combinationsProvider.notifier).nextStep(),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppColors.primary,
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                  ),
+                  child: const Text(
+                    'CONFIRM',
+                    style: TextStyle(
+                      color: Colors.black,
+                      fontFamily: 'Roboto Mono',
+                      fontWeight: FontWeight.bold,
+                      letterSpacing: 1.5,
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    ];
+  }
+
+  List<Widget> _buildStep3(WidgetRef ref, CombinationsState state, dynamic schema) {
+    return [
+      SliverToBoxAdapter(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+          child: const Text(
+            'How many tickets do you want?',
+            style: TextStyle(
+              color: AppColors.textPrimary,
+              fontFamily: 'Roboto Mono',
+              fontSize: 14,
+            ),
+          ),
+        ),
+      ),
+      SliverToBoxAdapter(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              IconButton(
+                onPressed: () => ref.read(combinationsProvider.notifier).setTicketQuantity(state.ticketQuantity - 1),
+                icon: const Icon(Icons.remove_circle_outline, color: AppColors.primary, size: 32),
+              ),
+              const SizedBox(width: 24),
+              Text(
+                '${state.ticketQuantity}',
+                style: const TextStyle(
+                  color: AppColors.textPrimary,
+                  fontFamily: 'Roboto Mono',
+                  fontSize: 32,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              const SizedBox(width: 24),
+              IconButton(
+                onPressed: () => ref.read(combinationsProvider.notifier).setTicketQuantity(state.ticketQuantity + 1),
+                icon: const Icon(Icons.add_circle_outline, color: AppColors.primary, size: 32),
+              ),
+            ],
+          ),
+        ),
+      ),
+      SliverToBoxAdapter(
+        child: Padding(
+          padding: const EdgeInsets.all(20),
+          child: Row(
+            children: [
+              Expanded(
+                child: OutlinedButton(
+                  onPressed: () => ref.read(combinationsProvider.notifier).previousStep(),
+                  style: OutlinedButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    side: const BorderSide(color: AppColors.border),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                  ),
+                  child: const Text(
+                    'BACK',
+                    style: TextStyle(color: AppColors.textPrimary, fontFamily: 'Roboto Mono'),
+                  ),
+                ),
+              ),
+              const SizedBox(width: 16),
+              Expanded(
+                flex: 2,
+                child: ElevatedButton(
+                  onPressed: () => ref.read(combinationsProvider.notifier).generate(schema.count),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppColors.primary,
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                  ),
+                  child: const Text(
+                    'GENERATE TICKETS',
+                    style: TextStyle(
+                      color: Colors.black,
+                      fontFamily: 'Roboto Mono',
+                      fontWeight: FontWeight.bold,
+                      letterSpacing: 1.5,
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+      if (state.generatedTickets.isNotEmpty)
+        SliverToBoxAdapter(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 20),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  '${state.generatedTickets.length} TICKETS GENERATED',
+                  style: const TextStyle(
+                    color: AppColors.textMuted,
+                    fontFamily: 'Roboto Mono',
+                    fontSize: 12,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                const SizedBox(height: 12),
+                ...state.generatedTickets.map((ticket) {
+                  return Container(
+                    margin: const EdgeInsets.only(bottom: 12),
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color: AppColors.surface,
+                      border: Border.all(color: AppColors.border),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: Wrap(
+                      spacing: 8,
+                      runSpacing: 8,
+                      children: ticket.map((n) => NumberBall(number: n, size: 32)).toList(),
+                    ),
+                  );
+                }),
+                const SizedBox(height: 40),
+              ],
+            ),
+          ),
+        ),
+    ];
   }
 
   Widget _buildGameSelector(WidgetRef ref, String selected) {
