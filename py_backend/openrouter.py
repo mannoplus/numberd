@@ -6,7 +6,7 @@ import logging
 from typing import Dict, List, Any, Optional, Tuple
 import requests
 
-from api.engine import GAME_PHYSICS, generate_trio_strategy, run_monte_carlo_simulation, calculate_metrics
+from py_backend.engine import GAME_PHYSICS, generate_trio_strategy, run_monte_carlo_simulation, calculate_metrics
 
 logger = logging.getLogger("openrouter")
 if not logger.handlers:

@@ -6,8 +6,8 @@ from dotenv import load_dotenv
 # Load environment variables from .env
 load_dotenv()
 
-from api.engine import GAME_PHYSICS, run_monte_carlo_simulation, calculate_metrics
-from api.openrouter import generate_predictions_with_openrouter, get_configured_models
+from py_backend.engine import GAME_PHYSICS, run_monte_carlo_simulation, calculate_metrics
+from py_backend.openrouter import generate_predictions_with_openrouter, get_configured_models
 
 app = Flask(__name__)
 

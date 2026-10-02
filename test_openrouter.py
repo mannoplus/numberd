@@ -2,8 +2,8 @@ import os
 import json
 import unittest
 from unittest.mock import patch, MagicMock
-from api.engine import GAME_PHYSICS, run_monte_carlo_simulation, calculate_metrics, generate_trio_strategy
-from api.openrouter import (
+from py_backend.engine import GAME_PHYSICS, run_monte_carlo_simulation, calculate_metrics, generate_trio_strategy
+from py_backend.openrouter import (
     call_openrouter_model,
     extract_json_from_response,
     validate_and_merge_predictions,
@@ -11,7 +11,7 @@ from api.openrouter import (
     sanitize_log_message,
     DEFAULT_MODEL_CHAIN
 )
-from api.index import app
+from py_backend.index import app
 
 class TestOpenRouterSubsystem(unittest.TestCase):
 
@@ -80,7 +80,7 @@ class TestOpenRouterSubsystem(unittest.TestCase):
             mock_sleep.assert_any_call(1.0)
             mock_sleep.assert_any_call(2.0)
 
-    @patch("api.openrouter.call_openrouter_model")
+    @patch("py_backend.openrouter.call_openrouter_model")
     def test_model_fallback_chain(self, mock_call):
         # 1st model (openrouter/free) fails
         # 2nd model (qwen/qwen-2.5-72b-instruct:free) succeeds
