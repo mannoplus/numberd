@@ -2,9 +2,11 @@ import { defineConfig } from 'vite'
 import vue from '@vitejs/plugin-vue'
 import tailwindcss from '@tailwindcss/vite'
 import { VitePWA } from 'vite-plugin-pwa'
+import { devApiPlugin } from './src/server/devApiPlugin'
 
 export default defineConfig({
   plugins: [
+    devApiPlugin(),
     vue(),
     tailwindcss(),
     VitePWA({

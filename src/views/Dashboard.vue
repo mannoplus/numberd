@@ -32,8 +32,8 @@ const gameTypes = ref([
 ])
 
 const now = ref(new Date())
-let timer: number
-let pollTimer: number
+let timer: any
+let pollTimer: any
 
 const fetchData = async () => {
   const months = getRecentMonths(2)

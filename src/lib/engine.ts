@@ -27,10 +27,22 @@ export interface PredictionSet {
   special: number | null;
   justification: string;
   riskProfile: string;
-  narrative?: string; // Filled by Gemini
+  narrative?: string;
+  confidenceScore?: number;
+  rationale?: string;
+  distributionStats?: {
+    sum: number;
+    oddCount?: number;
+    evenCount?: number;
+    highCount?: number;
+    lowCount?: number;
+  };
 }
 
 export interface EngineResult {
+  gameId?: GameId;
+  modelUsed?: string;
+  summary?: string;
   alpha: PredictionSet;
   beta: PredictionSet;
   gamma: PredictionSet;
@@ -192,11 +204,23 @@ export function runPredictionEngine(gameId: GameId, rawDraws: DrawRecord[]): Eng
     return Math.floor(rngFunc() * schema.specialPool) + 1;
   };
 
+  const calcStats = (nums: number[]) => ({
+    sum: sumArray(nums),
+    oddCount: nums.filter(n => n % 2 !== 0).length,
+    evenCount: nums.filter(n => n % 2 === 0).length,
+    highCount: nums.filter(n => n > schema.pool / 2).length,
+    lowCount: nums.filter(n => n <= schema.pool / 2).length
+  });
+
   const alpha = {
     numbers: bestAlpha,
     special: getSpecial(rng),
+    confidenceScore: 0.88,
     justification: `Monte Carlo optimal set. Sum: ${sumArray(bestAlpha)} (Target: ${Math.round(meanSum)}). Matches historical 50-draw means for Odd/Even and High/Low splits while preserving spatial entropy.`,
+    rationale: `Monte Carlo 100k iteration optimization balancing target mean sum (${Math.round(meanSum)}) and historical parity.`,
+    narrative: `Low-risk statistical convergence prioritizing regression to historical means with strict spatial entropy constraints.`,
     riskProfile: 'Low Variance - Converges to Mean',
+    distributionStats: calcStats(bestAlpha)
   };
 
   // Beta (Momentum)
@@ -225,8 +249,12 @@ export function runPredictionEngine(gameId: GameId, rawDraws: DrawRecord[]): Eng
   const beta = {
     numbers: betaArray,
     special: getSpecial(rng),
+    confidenceScore: 0.74,
     justification: `Momentum selection based on Top 20% exponentially decayed frequency, integrated with a ${repeatProbability.toFixed(1)}% Poisson repeat expectation and historical pair correlations.`,
+    rationale: `Targets high-momentum frequency clusters and historical streak repeat probability (${repeatProbability.toFixed(1)}%).`,
+    narrative: `Medium-risk trend-following strategy riding recent draw velocity and hot number persistence.`,
     riskProfile: 'High Momentum - Trend Following',
+    distributionStats: calcStats(betaArray)
   };
 
   // Gamma (Chaos)
@@ -241,11 +269,18 @@ export function runPredictionEngine(gameId: GameId, rawDraws: DrawRecord[]): Eng
   const gamma = {
     numbers: gammaArray,
     special: getSpecial(rng),
+    confidenceScore: 0.52,
     justification: `Black Swan pattern break. Built primarily from high-omission (Cold) numbers structured as an extreme ${isOddChaos ? 'All-Odd' : 'All-Even'} topological split.`,
+    rationale: `Contrarian anomaly correction targeting overdue cold numbers with high omission intervals.`,
+    narrative: `High-risk contrarian strategy targeting overdue variance recovery and pattern breaks.`,
     riskProfile: 'Extreme - Pattern Breaking',
+    distributionStats: calcStats(gammaArray)
   };
 
   return {
+    gameId,
+    modelUsed: 'deterministic_fallback',
+    summary: `Statistical forecast for ${gameId} incorporating Monte Carlo convergence, momentum tracking, and cold-omission analysis.`,
     alpha,
     beta,
     gamma,

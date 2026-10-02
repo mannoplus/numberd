@@ -222,7 +222,7 @@ class SettingsScreen extends ConsumerWidget {
                   const SizedBox(height: 12),
                   Divider(color: borderColor, height: 1),
                   const SizedBox(height: 12),
-                  _buildInfoRow(context, 'Gemini AI Engine', 'Gemini 2.5 Flash', isStatus: true),
+                  _buildInfoRow(context, 'AI Prediction Engine', 'OpenRouter (openrouter/free)', isStatus: true),
                 ],
               ),
             ),

@@ -139,11 +139,20 @@ onUnmounted(() => {
     </div>
 
     <div v-else class="space-y-8">
-      <div class="flex justify-end">
+      <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+        <div v-if="predictions?.summary" class="flex-1 text-sm font-mono text-[var(--color-text-secondary)] bg-[var(--color-surface-1)] border border-[var(--color-border-subtle)] px-4 py-2.5 rounded-sm flex items-center gap-3">
+          <span class="w-2 h-2 rounded-full bg-[#FFB224] animate-pulse shrink-0"></span>
+          <span>{{ predictions.summary }}</span>
+          <span v-if="predictions.modelUsed" class="ml-auto text-xs px-2 py-0.5 bg-[var(--color-surface-2)] text-[#FFB224] border border-[#FFB224]/30 rounded-sm font-bold uppercase tracking-wider shrink-0">
+            {{ predictions.modelUsed }}
+          </span>
+        </div>
+        <div v-else></div>
+
         <button 
           @click="generatePredictions" 
           :disabled="isGenerating"
-          class="flex min-h-11 items-center gap-2 rounded-sm border border-[var(--color-border-focus)] bg-[var(--color-surface-2)] px-4 py-2.5 text-[var(--color-text-primary)] font-mono text-sm uppercase tracking-wide transition-colors hover:bg-[var(--color-surface-3)] hover:border-[#FFB224]/50 hover:text-[#FFB224] disabled:opacity-50"
+          class="flex min-h-11 items-center gap-2 rounded-sm border border-[var(--color-border-focus)] bg-[var(--color-surface-2)] px-4 py-2.5 text-[var(--color-text-primary)] font-mono text-sm uppercase tracking-wide transition-colors hover:bg-[var(--color-surface-3)] hover:border-[#FFB224]/50 hover:text-[#FFB224] disabled:opacity-50 shrink-0"
         >
           <RefreshCw class="w-4 h-4" :class="{ 'animate-spin': isGenerating }" />
           {{ $t('predictions.run_monte_carlo') }}
@@ -181,11 +190,15 @@ onUnmounted(() => {
                 <div class="space-y-4 pt-4 border-t border-[var(--color-border-subtle)]">
                    <div>
                      <p class="text-xs text-[var(--color-text-tertiary)] uppercase font-mono tracking-wide mb-2">{{ $t('predictions.math_engine') }}</p>
-                     <p class="text-sm text-[var(--color-text-secondary)] leading-relaxed">{{ predictions.alpha.narrative || predictions.alpha.justification }}</p>
+                     <p class="text-sm text-[var(--color-text-secondary)] leading-relaxed">{{ predictions.alpha.narrative || predictions.alpha.rationale || predictions.alpha.justification }}</p>
                    </div>
                    <div>
                      <p class="text-xs text-[var(--color-text-tertiary)] uppercase font-mono tracking-wide mb-2">{{ $t('predictions.risk_profile') }}</p>
                      <p class="text-sm font-mono font-medium text-[var(--color-text-primary)]">{{ predictions.alpha.riskProfile }}</p>
+                   </div>
+                   <div v-if="predictions.alpha.confidenceScore" class="flex justify-between items-center pt-2 border-t border-[var(--color-border-subtle)]/50">
+                     <span class="text-xs text-[var(--color-text-tertiary)] uppercase font-mono tracking-wide">Confidence</span>
+                     <span class="text-xs font-mono font-bold text-[#FFB224]">{{ Math.round(predictions.alpha.confidenceScore * 100) }}%</span>
                    </div>
                 </div>
              </div>
@@ -221,11 +234,15 @@ onUnmounted(() => {
                 <div class="space-y-4 pt-4 border-t border-[var(--color-border-subtle)]">
                    <div>
                      <p class="text-xs text-[#FFB224]/60 uppercase font-mono tracking-wide mb-2">{{ $t('predictions.math_engine') }}</p>
-                     <p class="text-sm text-[var(--color-text-primary)] leading-relaxed">{{ predictions.beta.narrative || predictions.beta.justification }}</p>
+                     <p class="text-sm text-[var(--color-text-primary)] leading-relaxed">{{ predictions.beta.narrative || predictions.beta.rationale || predictions.beta.justification }}</p>
                    </div>
                    <div>
                      <p class="text-xs text-[#FFB224]/60 uppercase font-mono tracking-wide mb-2">{{ $t('predictions.risk_profile') }}</p>
                      <p class="text-sm font-mono font-medium text-[#FFB224]">{{ predictions.beta.riskProfile }}</p>
+                   </div>
+                   <div v-if="predictions.beta.confidenceScore" class="flex justify-between items-center pt-2 border-t border-[var(--color-border-subtle)]/50">
+                     <span class="text-xs text-[#FFB224]/70 uppercase font-mono tracking-wide">Confidence</span>
+                     <span class="text-xs font-mono font-bold text-[#FFB224]">{{ Math.round(predictions.beta.confidenceScore * 100) }}%</span>
                    </div>
                 </div>
              </div>
@@ -261,11 +278,15 @@ onUnmounted(() => {
                 <div class="space-y-4 pt-4 border-t border-[var(--color-border-subtle)]">
                    <div>
                      <p class="text-xs text-[var(--color-text-tertiary)] uppercase font-mono tracking-wide mb-2">{{ $t('predictions.math_engine') }}</p>
-                     <p class="text-sm text-[var(--color-text-secondary)] leading-relaxed">{{ predictions.gamma.narrative || predictions.gamma.justification }}</p>
+                     <p class="text-sm text-[var(--color-text-secondary)] leading-relaxed">{{ predictions.gamma.narrative || predictions.gamma.rationale || predictions.gamma.justification }}</p>
                    </div>
                    <div>
                      <p class="text-xs text-[var(--color-text-tertiary)] uppercase font-mono tracking-wide mb-2">{{ $t('predictions.risk_profile') }}</p>
                      <p class="text-sm font-mono font-medium text-[var(--color-text-primary)]">{{ predictions.gamma.riskProfile }}</p>
+                   </div>
+                   <div v-if="predictions.gamma.confidenceScore" class="flex justify-between items-center pt-2 border-t border-[var(--color-border-subtle)]/50">
+                     <span class="text-xs text-[var(--color-text-tertiary)] uppercase font-mono tracking-wide">Confidence</span>
+                     <span class="text-xs font-mono font-bold text-[#FFB224]">{{ Math.round(predictions.gamma.confidenceScore * 100) }}%</span>
                    </div>
                 </div>
              </div>

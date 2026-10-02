@@ -4,7 +4,7 @@ import '../../core/theme/colors.dart';
 import '../../shared/widgets/section_header.dart';
 import '../../shared/widgets/number_ball.dart';
 import '../../core/utils/engine.dart';
-import '../../core/network/gemini_service.dart';
+import '../../core/network/prediction_service.dart';
 import 'providers/predictions_provider.dart';
 
 class PredictionsScreen extends ConsumerWidget {
@@ -325,7 +325,7 @@ class PredictionsScreen extends ConsumerWidget {
   ) {
     final gameSchema = gameSchemas[gameId];
     final gameName = gameSchema?.id.replaceAll('_', ' ').toUpperCase() ?? gameId;
-    final geminiService = ref.read(geminiServiceProvider);
+    final predictionService = ref.read(predictionServiceProvider);
 
     showModalBottomSheet(
       context: context,
@@ -418,7 +418,7 @@ class PredictionsScreen extends ConsumerWidget {
               const SizedBox(height: 16),
 
               const Text(
-                'GEMINI AI 50-DRAW DEEP ANALYSIS',
+                'AI 50-DRAW DEEP ANALYSIS',
                 style: TextStyle(
                   color: AppColors.primary,
                   fontFamily: 'Roboto Mono',
@@ -429,11 +429,11 @@ class PredictionsScreen extends ConsumerWidget {
               ),
               const SizedBox(height: 12),
 
-              // Dynamic Gemini AI Response Block
+              // Dynamic AI Response Block
               Expanded(
                 child: SingleChildScrollView(
                   child: FutureBuilder<String?>(
-                    future: geminiService.explainPredictionStrategy(
+                    future: predictionService.explainPredictionStrategy(
                       gameName: gameName,
                       strategyType: title,
                       strategyTitle: subtitle,
@@ -455,7 +455,7 @@ class PredictionsScreen extends ConsumerWidget {
                               CircularProgressIndicator(color: AppColors.primary),
                               SizedBox(height: 16),
                               Text(
-                                'Synthesizing 50-draw data with Gemini AI...',
+                                'Synthesizing 50-draw data with AI Engine...',
                                 style: TextStyle(
                                   color: AppColors.textMuted,
                                   fontFamily: 'Roboto Mono',
