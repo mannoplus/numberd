@@ -1,4 +1,4 @@
-import { runPredictionEngine, type GameId, type DrawRecord, GAME_SCHEMAS } from '../src/lib/engine';
+import { runPredictionEngine, type GameId, type DrawRecord, GAME_SCHEMAS } from './_lib/engine';
 
 const DEFAULT_MODELS = [
   'openrouter/free',
