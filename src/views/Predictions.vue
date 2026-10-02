@@ -2,8 +2,8 @@
 import { ref, onMounted, watch, onUnmounted } from 'vue'
 import { fetchTaiwanLotteryApi, getRecentMonths } from '../lib/api'
 import { Layers, Activity, Zap, RefreshCw, Info } from 'lucide-vue-next'
-import type { EngineResult } from '../lib/engine'
-import PredictionWorker from '../lib/prediction.worker?worker'
+import type { GameId, EngineResult } from '../lib/engine'
+import { getPredictions } from '../lib/predictionService'
 
 const games = [
   { id: 'super_lotto_638', name: 'Super Lotto 638', pool: 38, count: 6, hasSpecial: true, specialPool: 8 },
@@ -20,57 +20,47 @@ let pollTimer: number | undefined
 // State for predictions
 const predictions = ref<EngineResult | null>(null)
 
-const fetchAndGenerate = async () => {
-  isLoading.value = true
-  try {
-    const months = getRecentMonths(12) // Ensure enough data for bi-weekly games to hit 50 draws
-    const data = await fetchTaiwanLotteryApi(selectedGame.value, months)
-    history.value = data || []
-    generatePredictions()
-  } catch (e) {
-    console.error(e)
-  } finally {
-    isLoading.value = false
-  }
-}
-
-// Utility removed to worker
-
-const generatePredictions = () => {
+const generatePredictions = async () => {
   if (isGenerating.value) return
   isGenerating.value = true
   
   const game = games.find(g => g.id === selectedGame.value)
-  if (!game || history.value.length === 0) {
+  if (!game) {
     isGenerating.value = false
     return
   }
 
-  // Use the Web Worker for the heavy math logic
-  const worker = new PredictionWorker()
-  
-  worker.onmessage = (e) => {
-    if (e.data.success) {
-      predictions.value = e.data.result
-    } else {
-      console.error("Prediction Engine Error:", e.data.error)
+  try {
+    const result = await getPredictions(game.id as GameId, history.value || [])
+    if (result) {
+      predictions.value = result
     }
+  } catch (e) {
+    console.error('[Predictions] Error generating predictions:', e)
+  } finally {
     isGenerating.value = false
-    worker.terminate()
+    isLoading.value = false
   }
+}
 
-  worker.onerror = (e) => {
-    console.error("Web Worker Error:", e)
-    isGenerating.value = false
-    worker.terminate()
+const fetchAndGenerate = async () => {
+  isLoading.value = true
+  // Immediately generate predictions with existing state/seeds
+  generatePredictions()
+
+  try {
+    const months = getRecentMonths(4) // 4 months provides fast retrieval and ample draws
+    const data = await fetchTaiwanLotteryApi(selectedGame.value, months)
+    if (data && data.length > 0) {
+      history.value = data
+      // Re-run with the fresh live draws
+      generatePredictions()
+    }
+  } catch (e) {
+    console.error('[Predictions] Error fetching live historical draws:', e)
+  } finally {
+    isLoading.value = false
   }
-
-  // Pass history and wait for results (at least 600ms delay for UI feel)
-  const startTime = Date.now()
-  
-  setTimeout(() => {
-    worker.postMessage({ gameId: game.id, draws: history.value })
-  }, Math.max(0, 600 - (Date.now() - startTime)))
 }
 
 watch(selectedGame, () => {
@@ -130,15 +120,12 @@ onUnmounted(() => {
       </div>
     </header>
 
-    <div v-if="isLoading" class="flex items-center justify-center p-20">
+    <div v-if="!predictions && (isLoading || isGenerating)" class="flex flex-col items-center justify-center p-20 gap-4">
       <div class="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-[#FFB224]"></div>
-    </div>
-    
-    <div v-else-if="history.length === 0" class="bg-[var(--color-surface-1)] rounded-sm border border-[var(--color-border-subtle)] p-8 text-center text-[var(--color-text-secondary)] font-mono uppercase">
-      {{ $t('predictions.no_data') }}
+      <p class="text-sm font-mono text-[var(--color-text-secondary)] uppercase tracking-wider">Generating predictions...</p>
     </div>
 
-    <div v-else class="space-y-8">
+    <div v-else-if="predictions" class="space-y-8">
       <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div v-if="predictions?.summary" class="flex-1 text-sm font-mono text-[var(--color-text-secondary)] bg-[var(--color-surface-1)] border border-[var(--color-border-subtle)] px-4 py-2.5 rounded-sm flex items-center gap-3">
           <span class="w-2 h-2 rounded-full bg-[#FFB224] animate-pulse shrink-0"></span>
@@ -314,10 +301,14 @@ onUnmounted(() => {
         <div class="flex items-start gap-3 max-w-sm text-[var(--color-text-secondary)]">
           <Info class="w-4 h-4 mt-0.5 shrink-0" />
           <p class="text-xs leading-relaxed">
-            Lottery draws are independent random events. These predictions are generated purely for statistical reference and entertainment based on the last 50 draws (as of {{ history[0]?.draw_date }}). They do not guarantee any outcomes.
+            Lottery draws are independent random events. These predictions are generated purely for statistical reference and entertainment based on recent draws (as of {{ history[0]?.draw_date || 'latest available' }}). They do not guarantee any outcomes.
           </p>
         </div>
       </div>
+    </div>
+
+    <div v-else class="bg-[var(--color-surface-1)] rounded-sm border border-[var(--color-border-subtle)] p-8 text-center text-[var(--color-text-secondary)] font-mono uppercase">
+      {{ $t('predictions.no_data') }}
     </div>
   </div>
 </template>

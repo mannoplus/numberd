@@ -27,17 +27,27 @@ export const fetchTaiwanLotteryApi = async (gameId: string, months: string[]) =>
 
     let allDraws: any[] = []
 
-    // Fetch all requested months concurrently
-    const requests = months.map(m =>
-        fetch(`https://api.taiwanlottery.com/TLCAPIWeB/Lottery/${endpoint}?period=&month=${m}`)
-            .then(res => res.json())
-            .catch(err => {
-                console.error(`Failed to fetch ${m} for ${gameId}`, err)
-                return null
-            })
-    )
+    const fetchWithTimeout = async (url: string, timeoutMs = 4000) => {
+        try {
+            const controller = new AbortController();
+            const timer = setTimeout(() => controller.abort(), timeoutMs);
+            const res = await fetch(url, { signal: controller.signal });
+            clearTimeout(timer);
+            if (res.ok) {
+                return await res.json();
+            }
+            return null;
+        } catch {
+            return null;
+        }
+    };
 
-    const responses = await Promise.all(requests)
+    // Fetch all requested months concurrently with timeout
+    const requests = months.map(m =>
+        fetchWithTimeout(`https://api.taiwanlottery.com/TLCAPIWeB/Lottery/${endpoint}?period=&month=${m}`)
+    );
+
+    const responses = await Promise.all(requests);
 
     responses.forEach(data => {
         if (data && data.content && data.content[resultsKey]) {
