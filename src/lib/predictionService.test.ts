@@ -88,6 +88,9 @@ describe('Prediction Service & Engine', () => {
 
     global.fetch = vi.fn().mockResolvedValue({
       ok: true,
+      headers: {
+        get: (h: string) => (h.toLowerCase() === 'content-type' ? 'application/json' : null)
+      },
       json: async () => mockApiResponse
     } as any);
 
@@ -114,6 +117,9 @@ describe('Prediction Service & Engine', () => {
   it('runs Monte Carlo analysis endpoint with fallback', async () => {
     global.fetch = vi.fn().mockResolvedValue({
       ok: true,
+      headers: {
+        get: (h: string) => (h.toLowerCase() === 'content-type' ? 'application/json' : null)
+      },
       json: async () => ({
         success: true,
         optimalNumbers: [2, 6, 12, 18, 24, 30],

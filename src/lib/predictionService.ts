@@ -24,7 +24,10 @@ export async function getPredictions(
       })
     });
 
-    if (response.ok) {
+    const contentType = typeof response.headers?.get === 'function' 
+      ? response.headers.get('content-type') 
+      : 'application/json';
+    if (response.ok && (!contentType || contentType.includes('application/json'))) {
       const data = await response.json();
       if (data && data.success && data.alpha && data.beta && data.gamma) {
         return {
@@ -71,7 +74,10 @@ export async function runMonteCarloAnalysis(
       })
     });
 
-    if (response.ok) {
+    const contentType = typeof response.headers?.get === 'function'
+      ? response.headers.get('content-type')
+      : 'application/json';
+    if (response.ok && (!contentType || contentType.includes('application/json'))) {
       const data = await response.json();
       if (data && data.success && data.optimalNumbers) {
         return {

@@ -96,14 +96,43 @@ export function runPredictionEngine(gameId: GameId, rawDraws: DrawRecord[]): Eng
   const schema = GAME_SCHEMAS[gameId];
   if (!schema) throw new Error("Invalid Game ID");
 
-  // Filter valid draws and guarantee exactly 50 max
-  const sortedDraws = [...rawDraws]
+  // Normalize and filter valid draws
+  const normalized: DrawRecord[] = (rawDraws || []).map((d: any, idx) => {
+    if (Array.isArray(d)) {
+      return {
+        draw_id: String(idx + 1),
+        game_type: gameId,
+        draw_date: new Date(Date.now() - idx * 86400000 * 3).toISOString().split('T')[0]!,
+        numbers: d.map(Number).filter(n => !isNaN(n)).sort((a, b) => a - b),
+        special_number: null
+      };
+    }
+    if (d && Array.isArray(d.numbers)) {
+      return {
+        ...d,
+        numbers: d.numbers.map(Number).sort((a: number, b: number) => a - b)
+      };
+    }
+    return null;
+  }).filter((d): d is DrawRecord => d !== null && d.numbers.length === schema.count);
+
+  let sortedDraws = normalized
     .sort((a, b) => new Date(b.draw_date).getTime() - new Date(a.draw_date).getTime())
-    .filter(d => d.numbers && d.numbers.length === schema.count)
     .slice(0, 50);
 
+  // If no draws available, generate deterministic synthetic seed draws
   if (sortedDraws.length === 0) {
-    throw new Error("No valid draws found for " + gameId);
+    const fullPool = Array.from({ length: schema.pool }, (_, i) => i + 1);
+    const seedRng = mulberry32(hashString(`seed_${gameId}`));
+    for (let i = 0; i < 50; i++) {
+      sortedDraws.push({
+        draw_id: String(115000000 + i),
+        game_type: gameId,
+        draw_date: new Date(Date.now() - i * 86400000 * 3).toISOString().split('T')[0]!,
+        numbers: pickRandom(fullPool, schema.count, seedRng),
+        special_number: schema.hasSpecial ? Math.floor(seedRng() * schema.specialPool) + 1 : null
+      });
+    }
   }
 
   // Seed deterministic RNG
