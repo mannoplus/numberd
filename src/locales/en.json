@@ -48,6 +48,8 @@
         "title": "Advanced Predictions",
         "subtitle": "The Trio Strategy engine analyzing historical data to output Alpha, Beta, and Gamma statistical models.",
         "no_data": "Unable to load historical data for predictions.",
+        "idle_message": "No predictions generated yet. Click 'Run Monte Carlo Simulation' to generate numbers.",
+        "simulation_failed": "Simulation request failed. Please try again.",
         "run_monte_carlo": "Run Monte Carlo Simulation",
         "alpha": "Alpha Strategy",
         "alpha_tag": "Balanced",

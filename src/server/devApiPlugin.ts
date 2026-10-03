@@ -163,7 +163,7 @@ export function devApiPlugin(): Plugin {
             return;
           }
 
-          if (apiKey && draws.length > 0) {
+          if (apiKey) {
             // Build prompt
             const schema = GAME_SCHEMAS[gameId] || GAME_SCHEMAS['super_lotto_638'];
             const prompt = [

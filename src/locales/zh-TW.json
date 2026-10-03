@@ -48,6 +48,8 @@
         "title": "進階預測",
         "subtitle": "使用 Trio Strategy 分析引擎，透過歷史數據產生 Alpha、Beta、Gamma 三種統計模型預測。",
         "no_data": "無法載入歷史資料以進行預測。",
+        "idle_message": "尚未產生預測數據。請點擊「執行蒙地卡羅模擬」以產生號碼。",
+        "simulation_failed": "模擬執行失敗，請稍後再試。",
         "run_monte_carlo": "執行蒙地卡羅模擬 (Monte Carlo)",
         "alpha": "Alpha 策略",
         "alpha_tag": "均衡型",

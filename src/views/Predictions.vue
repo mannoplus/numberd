@@ -1,9 +1,9 @@
 <script setup lang="ts">
-import { ref, onMounted, watch, onUnmounted } from 'vue'
-import { fetchTaiwanLotteryApi, getRecentMonths } from '../lib/api'
-import { Layers, Activity, Zap, RefreshCw, Info } from 'lucide-vue-next'
+import { ref, watch, onUnmounted } from 'vue'
+import { Layers, Activity, Zap, RefreshCw, Info, AlertCircle, X } from 'lucide-vue-next'
 import type { GameId, EngineResult } from '../lib/engine'
 import { getPredictions } from '../lib/predictionService'
+import { readPredictionCache, writePredictionCache } from '../lib/predictionCache'
 
 const games = [
   { id: 'super_lotto_638', name: 'Super Lotto 638', pool: 38, count: 6, hasSpecial: true, specialPool: 8 },
@@ -11,87 +11,77 @@ const games = [
   { id: 'daily_cash_539', name: 'Daily Cash 539', pool: 39, count: 5, hasSpecial: false, specialPool: 0 }
 ]
 
-const selectedGame = ref(games[0]!.id)
-const isLoading = ref(true)
-const isGenerating = ref(false)
-const history = ref<any[]>([])
-let pollTimer: number | undefined
-
-// State for predictions
+const selectedGame = ref<string>(games[0]!.id)
+const isLoading = ref<boolean>(false)
+const isGenerating = ref<boolean>(false)
 const predictions = ref<EngineResult | null>(null)
+const inFlightRequests = ref<Record<string, boolean>>({})
+const errorMessage = ref<string | null>(null)
+let errorTimeout: number | undefined
 
-const generatePredictions = async () => {
-  if (isGenerating.value) return
+// Hydrate game from localStorage cache (no spinners, no API calls)
+const hydrateGame = (gameId: string) => {
+  errorMessage.value = null
+  const cached = readPredictionCache(gameId)
+  predictions.value = cached
+
+  // Check if target game has an in-flight request pending
+  const inFlight = !!inFlightRequests.value[gameId]
+  isLoading.value = inFlight
+  isGenerating.value = inFlight
+}
+
+// Initial synchronous hydration on page load
+hydrateGame(selectedGame.value)
+
+// Switching between game tabs: purely inspects localStorage, never triggers network requests
+watch(selectedGame, (newGameId) => {
+  hydrateGame(newGameId)
+})
+
+const onRunSimulation = async () => {
+  const targetGameId = selectedGame.value
+  if (inFlightRequests.value[targetGameId]) return
+
+  inFlightRequests.value[targetGameId] = true
+  isLoading.value = true
   isGenerating.value = true
-  
-  const game = games.find(g => g.id === selectedGame.value)
-  if (!game) {
-    isGenerating.value = false
-    return
-  }
+  errorMessage.value = null
 
   try {
-    const result = await getPredictions(game.id as GameId, history.value || [])
-    if (result) {
+    const result = await getPredictions(targetGameId as GameId, [])
+    if (!result) {
+      throw new Error('Simulation failed to return results')
+    }
+
+    // Persist result into target game's cache key upon resolution
+    writePredictionCache(targetGameId, result)
+
+    // Only render results on the active view if the user is still on targetGameId
+    if (selectedGame.value === targetGameId) {
       predictions.value = result
     }
-  } catch (e) {
-    console.error('[Predictions] Error generating predictions:', e)
-  } finally {
-    isGenerating.value = false
-    isLoading.value = false
-  }
-}
-
-const fetchAndGenerate = async () => {
-  isLoading.value = true
-  // Immediately generate predictions with existing state/seeds
-  generatePredictions()
-
-  try {
-    const months = getRecentMonths(4) // 4 months provides fast retrieval and ample draws
-    const data = await fetchTaiwanLotteryApi(selectedGame.value, months)
-    if (data && data.length > 0) {
-      history.value = data
-      // Re-run with the fresh live draws
-      generatePredictions()
+  } catch (err: any) {
+    console.error('[Predictions] Error generating predictions:', err)
+    if (selectedGame.value === targetGameId) {
+      errorMessage.value = err?.message || 'Simulation request failed. Please try again.'
+      if (errorTimeout) clearTimeout(errorTimeout)
+      errorTimeout = window.setTimeout(() => {
+        errorMessage.value = null
+      }, 5000)
     }
-  } catch (e) {
-    console.error('[Predictions] Error fetching live historical draws:', e)
+    // Preserves previously displayed cached data; does not clear localStorage keys
   } finally {
-    isLoading.value = false
-  }
-}
-
-watch(selectedGame, () => {
-  fetchAndGenerate()
-})
-
-onMounted(() => {
-  fetchAndGenerate()
-  const scheduleRefresh = () => {
-    const nowLocal = new Date()
-    const target = new Date(nowLocal)
-    target.setHours(21, 0, 0, 0)
-    if (nowLocal.getTime() >= target.getTime()) {
-      target.setDate(target.getDate() + 1)
-    }
-    const delay = target.getTime() - nowLocal.getTime()
-    pollTimer = window.setTimeout(() => {
-      // Only refresh silently in the background
-      const prevIsLoading = isLoading.value
+    inFlightRequests.value[targetGameId] = false
+    if (selectedGame.value === targetGameId) {
       isLoading.value = false
-      fetchAndGenerate().finally(() => { 
-        isLoading.value = prevIsLoading
-        scheduleRefresh()
-      })
-    }, delay)
+      isGenerating.value = false
+    }
   }
-  scheduleRefresh()
-})
+}
 
 onUnmounted(() => {
-  if (pollTimer) clearTimeout(pollTimer)
+  if (errorTimeout) clearTimeout(errorTimeout)
 })
 </script>
 
@@ -120,28 +110,65 @@ onUnmounted(() => {
       </div>
     </header>
 
+    <!-- Non-blocking Error Toast / Banner -->
+    <div 
+      v-if="errorMessage" 
+      class="flex items-center justify-between p-4 bg-red-950/40 border border-red-500/50 rounded-sm text-red-200 text-sm font-mono"
+    >
+      <div class="flex items-center gap-3">
+        <AlertCircle class="w-4 h-4 text-red-400 shrink-0" />
+        <span>{{ errorMessage }}</span>
+      </div>
+      <button 
+        @click="errorMessage = null" 
+        class="text-red-400 hover:text-red-200 p-1 rounded transition-colors"
+        aria-label="Dismiss error"
+      >
+        <X class="w-4 h-4" />
+      </button>
+    </div>
+
+    <!-- Active Loading State (No previous predictions yet) -->
     <div v-if="!predictions && (isLoading || isGenerating)" class="flex flex-col items-center justify-center p-20 gap-4">
       <div class="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-[#FFB224]"></div>
       <p class="text-sm font-mono text-[var(--color-text-secondary)] uppercase tracking-wider">Generating predictions...</p>
     </div>
 
-    <div v-else-if="predictions" class="space-y-8">
+    <!-- Idle State: No Predictions Generated Yet -->
+    <div 
+      v-else-if="!predictions" 
+      class="bg-[var(--color-surface-1)] rounded-sm border border-[var(--color-border-subtle)] p-12 text-center flex flex-col items-center justify-center gap-6"
+    >
+      <div class="space-y-2 max-w-md">
+        <p class="text-[var(--color-text-secondary)] font-mono text-sm tracking-wide">
+          {{ $t('predictions.idle_message') }}
+        </p>
+      </div>
+      <button 
+        @click="onRunSimulation" 
+        :disabled="isGenerating || isLoading"
+        class="flex min-h-11 items-center gap-2 rounded-sm border border-[var(--color-border-focus)] bg-[var(--color-surface-2)] px-6 py-2.5 text-[var(--color-text-primary)] font-mono text-sm uppercase tracking-wide transition-colors hover:bg-[var(--color-surface-3)] hover:border-[#FFB224]/50 hover:text-[#FFB224] disabled:opacity-50 shrink-0"
+      >
+        <RefreshCw class="w-4 h-4" :class="{ 'animate-spin': isGenerating || isLoading }" />
+        {{ $t('predictions.run_monte_carlo') }}
+      </button>
+    </div>
+
+    <!-- Populated State: Display Predictions -->
+    <div v-else class="space-y-8">
       <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div v-if="predictions?.summary" class="flex-1 text-sm font-mono text-[var(--color-text-secondary)] bg-[var(--color-surface-1)] border border-[var(--color-border-subtle)] px-4 py-2.5 rounded-sm flex items-center gap-3">
           <span class="w-2 h-2 rounded-full bg-[#FFB224] animate-pulse shrink-0"></span>
           <span>{{ predictions.summary }}</span>
-          <span v-if="predictions.modelUsed" class="ml-auto text-xs px-2 py-0.5 bg-[var(--color-surface-2)] text-[#FFB224] border border-[#FFB224]/30 rounded-sm font-bold uppercase tracking-wider shrink-0">
-            {{ predictions.modelUsed }}
-          </span>
         </div>
-        <div v-else></div>
+        <div v-else class="flex-1"></div>
 
         <button 
-          @click="generatePredictions" 
-          :disabled="isGenerating"
+          @click="onRunSimulation" 
+          :disabled="isGenerating || isLoading"
           class="flex min-h-11 items-center gap-2 rounded-sm border border-[var(--color-border-focus)] bg-[var(--color-surface-2)] px-4 py-2.5 text-[var(--color-text-primary)] font-mono text-sm uppercase tracking-wide transition-colors hover:bg-[var(--color-surface-3)] hover:border-[#FFB224]/50 hover:text-[#FFB224] disabled:opacity-50 shrink-0"
         >
-          <RefreshCw class="w-4 h-4" :class="{ 'animate-spin': isGenerating }" />
+          <RefreshCw class="w-4 h-4" :class="{ 'animate-spin': isGenerating || isLoading }" />
           {{ $t('predictions.run_monte_carlo') }}
         </button>
       </div>
@@ -301,14 +328,10 @@ onUnmounted(() => {
         <div class="flex items-start gap-3 max-w-sm text-[var(--color-text-secondary)]">
           <Info class="w-4 h-4 mt-0.5 shrink-0" />
           <p class="text-xs leading-relaxed">
-            Lottery draws are independent random events. These predictions are generated purely for statistical reference and entertainment based on recent draws (as of {{ history[0]?.draw_date || 'latest available' }}). They do not guarantee any outcomes.
+            Lottery draws are independent random events. These predictions are generated purely for statistical reference and entertainment based on recent draws. They do not guarantee any outcomes.
           </p>
         </div>
       </div>
-    </div>
-
-    <div v-else class="bg-[var(--color-surface-1)] rounded-sm border border-[var(--color-border-subtle)] p-8 text-center text-[var(--color-text-secondary)] font-mono uppercase">
-      {{ $t('predictions.no_data') }}
     </div>
   </div>
 </template>
